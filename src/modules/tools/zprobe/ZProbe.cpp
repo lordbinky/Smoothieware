@@ -1,5 +1,4 @@
-/*
-      This file is part of Smoothie (http://smoothieware.org/). The motion control part is heavily based on Grbl (https://github.com/simen/grbl).
+ /*      This file is part of Smoothie (http://smoothieware.org/). The motion control part is heavily based on Grbl (https://github.com/simen/grbl).
       Smoothie is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
       Smoothie is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
       You should have received a copy of the GNU General Public License along with Smoothie. If not, see <http://www.gnu.org/licenses/>.
@@ -449,14 +448,89 @@ bool ZProbe::calibrate_delta_tower_radial(Gcode *gcode)
       //get probe points
       float t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y; 
       std::tie(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y) = getCoordinates(this->probe_radius);
-      //home
+      
       home();
+      // find bed, then move to a point 5mm above it    
+      int s;    if(!run_probe(s, true)) return false;    
+      float bedht= s/Z_STEPS_PER_MM - this->probe_height; // distance to move from home to 5mm above bed    
+      gcode->stream->printf("Bed ht is %f mm\n", bedht);    
       
+      home();
+      coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed
+      
+      // probe center to get reference point at this Z height
+      int dc
+      if(!probe_delta_tower(dc, 0, 0)) return false;
+      gcode->stream->printf("CT Z:%1.3f C:%d\n", dc / Z_STEPS_PER_MM, dc);
+      float cmm= dc / Z_STEPS_PER_MM;
+      
+      // get current delta radius
+      float delta_radius= 0.0F;
+      BaseSolution::arm_options_t options;
+      if(THEKERNEL->robot->arm_solution->get_optional(options)) {
+            delta_radius= options['R'];
+      }
+      if(delta_radius == 0.0F) {
+            gcode->stream->printf("This appears to not be a delta arm solution\n");
+            return false;
+      }
+      options.clear();
       float alpha,beta,gamma;
-      alpha=
-      
-      
-      
+      bool alpha_error,beta_error,gamma_error;
+      alpha_error=true;
+      beta_error=true;
+      gamma_error=true;
+      int blame_tower;
+      for (int i = 1; i <= 20; ++i) {
+            // probe towers and anti-tower positions using coordinated moves
+            int dx, dy, dz,dax,day,daz;
+            if(!probe_delta_tower(dx, t1x, t1y)) return false;
+            gcode->stream->printf("Pass-%d Alpha:%1.3f Steps:%d\n", i, dx / Z_STEPS_PER_MM, dx);
+            if(!probe_delta_tower(daz,t6x,t6y)) return false;
+            gcode->stream->printf("Pass-%d AntiGamma:%1.3f Steps:%d\n", i, daz / Z_STEPS_PER_MM, daz);
+            if(!probe_delta_tower(dy, t2x, t2y)) return false;
+            gcode->stream->printf("Pass-%d Beta:%1.3f Steps:%d\n", i, dy / Z_STEPS_PER_MM, dy);
+            if(!probe_delta_tower(dax,t4x,t4y)) return false;
+            gcode->stream->printf("Pass-%d AntiAlpha:%1.3f Steps:%d\n", i, dax / Z_STEPS_PER_MM, dax);
+            if(!probe_delta_tower(dz, t3x, t3y)) return false;
+            gcode->stream->printf("Pass-%d Gamma:%1.3f Steps:%d\n", i, dz / Z_STEPS_PER_MM, dz);
+            if(!probe_delta_tower(day,t5x,t5y)) return false;
+            gcode->stream->printf("Pass-%d AntiBeta:%1.3f Steps:%d\n", i, day / Z_STEPS_PER_MM, day);
+            
+            //get difference of tower and anti-tower positions
+            alpha= dx - dax;
+            beta = dy - day;
+            gamma= dz - daz;
+            auto mm = std::minmax({abs(alpha),abs(beta),abs(gamma)});
+            if(alpha - mm.first < target) alpha_error = false;
+            if(beta - mm.first < target)  beta_error  = false;
+            if(gamma - mm.first < target) gamma_error = false;
+            blame_tower=0;
+            if(!alpha_error && beta_error  && gamma_error)  blame_tower = 1;
+            if(alpha error  && !beta_error && gamma_error)  blame_tower = 2;
+            if(alpha error  && beta_error  && !gamma_error) blame_tower = 3;
+            if(alpha error  && !beta_error && !gamma_error) blame_tower = 1;
+            if(!alpha error && beta_error  && !gamma_error) blame_tower = 2;
+            if(!alpha error && !beta_error && gamma_error)  blame_tower = 3;
+            if(alpha error  && beta_error  && gamma_error)  blame_tower = 4;
+            gcode->stream->printf("Alpha Error:%b Beta Error:%b Gamma error:%b \n",alpha_error,beta_error,gamma_error);
+            gcode->stream->printf("Blame tower:%d",blame_tower);
+            
+
+            /*
+            // now look at the difference and reduce it by adjusting delta radius
+            float m= ((dx+dy+dz)/3.0F) / Z_STEPS_PER_MM;
+            float d= cmm-m;
+            gcode->stream->printf("C-%d Tower Z-ave:%1.4f delta: %1.3f\n", i, m, d);
+            float tm= ((dx+dy+dz+dax+day+daz)/6.0F) / Z_STEPS_PER_MM;
+            float td= cmm-tm;
+            gcode->stream->printf("C-%d Total Z-ave:%1.4f delta: %1.3f\n", i, tm,td);
+            // report Anti-tower findings for Potential Tower error.
+            gcode->stream->printf("Possible Radius Error for Towers: ");
+            if(abs((dx-dax)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Alpha ");
+            if(abs((dy-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Beta ");
+            if(abs((dz-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Gamma \n");*/
+            
 }
 
 void ZProbe::on_gcode_received(void *argument)
