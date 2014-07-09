@@ -33,6 +33,9 @@ private:
     bool return_probe(int steps);
     bool calibrate_delta_endstops(Gcode *gcode);
     bool calibrate_delta_radius(Gcode *gcode);
+    bool calibrate_delta_tower_position(Gcode *gcode);
+    bool calibrate_delta_tower_radial(int delta_tower, StreamOutput *stream);
+    bool calibrate_delta_tower_angular(int delta_tower, StreamOutput*stream);
     void coordinated_move(float x, float y, float z, float feedrate, bool relative=false);
     void home();
     bool set_trim(float x, float y, float z, StreamOutput *stream);
