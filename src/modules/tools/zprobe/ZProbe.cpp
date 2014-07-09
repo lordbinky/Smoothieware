@@ -187,8 +187,8 @@ static std::tuple<float, float, float, float, float, float, float, float, float,
     float t2x = px,           t2y = -py;        // Y Tower
     float t3x = 0.0F,         t3y = radius;     // Z Tower
     float t4x = px,           t4y = py;         // Opposite X Tower
-    float t5x = -px,          t2y = py;         //OPposite Y Tower
-    float t6x = 0F,           t6y =-radius;     //Opposite Z Tower
+    float t5x = -px,          t5y = py;         //OPposite Y Tower
+    float t6x = 0.0F,         t6y = -radius;     //Opposite Z Tower
     return std::make_tuple(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y);
 }
 
@@ -228,8 +228,8 @@ bool ZProbe::calibrate_delta_endstops(Gcode *gcode)
     gcode->stream->printf("Calibrating Endstops: target %fmm, radius %fmm\n", target, this->probe_radius);
 
     // get probe points
-    float t1x, t1y, t2x, t2y, t3x, t3y;
-    std::tie(t1x, t1y, t2x, t2y, t3x, t3y) = getCoordinates(this->probe_radius);
+    float t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y;
+    std::tie(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y) = getCoordinates(this->probe_radius);
 
     float trimx= 0.0F, trimy= 0.0F, trimz= 0.0F;
     if(!keep) {
@@ -350,7 +350,7 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
 
     // get probe points
     float t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y;
-    std::tie(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y,) = getCoordinates(this->probe_radius);
+    std::tie(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y) = getCoordinates(this->probe_radius);
 
     home();
     // find bed, then move to a point 5mm above it
@@ -407,15 +407,15 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
         gcode->stream->printf("C-%d Total Z-ave:%1.4f delta: %1.3f\n", i, tm,td);
         // report Anti-tower findings for Potential Tower error.
         gcode->stream->printf("Possible Radius Error for Towers: ");
-        if(abs((dx-dax)/Z_STEPS_PER_MM) > target) printf("Alpha ");
-        if(abs((dy-daz)/Z_STEPS_PER_MM) > target) printf("Beta ");
-        if(abs((dz-daz)/Z_STEPS_PER_MM) > target) printf("Gamma \n");
+        if(abs((dx-dax)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Alpha ");
+        if(abs((dy-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Beta ");
+        if(abs((dz-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Gamma \n");
         else gcode->stream->printf("None Found\n");
-        gcode->stream->printf("Possible Angle Position Error for Towers: ");
+        /*gcode->stream->printf("Possible Angle Position Error for Towers: ");
         if(abs((dx-day)/Z_STEPS_PER_MM) > target || abs((dx-daz)/Z_STEPS_PER_MM) > target ) printf("Alpha ");
         if(abs((dy-daz)/Z_STEPS_PER_MM) > target || abs((dy-dax)/Z_STEPS_PER_MM) > target ) printf("Beta ");
         if(abs((dz-dax)/Z_STEPS_PER_MM) > target || abs((dz-day)/Z_STEPS_PER_MM) > target ) printf("Gamma ");
-        else gcode->stream->printf("None Found\n");
+        else gcode->stream->printf("None Found\n");*/
 
         if(abs(d) <= target) break; // resolution of success
 
