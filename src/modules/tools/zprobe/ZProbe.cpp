@@ -438,6 +438,15 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
     return true;
 }
 
+bool ZProbe::calibrate_delta_tower_position(Gcode *gcode)
+{
+return true;
+}
+
+bool ZProbe::calibrate_delta_tower_angular(Gcode *gcode)
+{
+return true;
+}
 
 bool ZProbe::calibrate_delta_tower_radial(Gcode *gcode)
 {
