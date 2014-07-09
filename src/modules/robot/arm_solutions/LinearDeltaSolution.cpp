@@ -11,17 +11,33 @@
 
 #define arm_length_checksum         CHECKSUM("arm_length")
 #define arm_radius_checksum         CHECKSUM("arm_radius")
+#define alpha_radial_checksum       CHECKSUM("alpha_radial_offset")
+#define beta_radial_checksum        CHECKSUM("beta_radial_offset")
+#define gamma_radial_checksum       CHECKSUM("gamma_radial_offset")
+#define alpha_angular_checksum      CHECKSUM("alpha_angular_offset")
+#define beta_angular_checksum       CHECKSUM("beta_angular_offset")
+#define gamma_angular_checksum      CHECKSUM("gamma_angular_offset")
 
 
 #define SQ(x) powf(x, 2)
 #define ROUND(x, y) (roundf(x * 1e ## y) / 1e ## y)
 
+#define PIOVER180 0.0174529251994329576923690768489F
+
 LinearDeltaSolution::LinearDeltaSolution(Config* config)
 {
     // arm_length is the length of the arm from hinge to hinge
-    arm_length         = config->value(arm_length_checksum)->by_default(250.0f)->as_number();
+    arm_length      = config->value(arm_length_checksum)->by_default(250.0f)->as_number();
     // arm_radius is the horizontal distance from hinge to hinge when the effector is centered
-    arm_radius         = config->value(arm_radius_checksum)->by_default(124.0f)->as_number();
+    arm_radius      = config->value(arm_radius_checksum)->by_default(124.0f)->as_number();
+    // radial offsets for the delta towers
+    delta_tower1_r  = config->value(alpha_radial_checksum)->by_default(0.0f)->as_number();
+    delta_tower2_r  = config->value(beta_radial_checksum)->by_default(0.0f)->as_number();
+    delta_tower3_r  = config->value(gamma_radial_checksum)->by_default(0.0f)->as_number();
+    //Angular component for delta towers.
+    delta_tower1_a  = config->value(alpha_angular_checksum)->by_default(210.0f)->as_number();
+    delta_tower2_a  = config->value(beta_angular_checksum)->by_default(330.0f)->as_number();
+    delta_tower3_a  = config->value(gamma_angular_checksum)->by_default(90.0f)->as_number();
 
     init();
 }
@@ -32,17 +48,14 @@ void LinearDeltaSolution::init() {
     // Effective X/Y positions of the three vertical towers.
     float DELTA_RADIUS = arm_radius;
 
-    float SIN_60   = 0.8660254037844386F;
-    float COS_60   = 0.5F;
+    DELTA_TOWER1_X = cosf(PIOVER180*delta_tower1_a) * (DELTA_RADIUS+delta_tower1_r); // front left tower
+    DELTA_TOWER1_Y = sinf(PIOVER180*delta_tower1_a) * (DELTA_RADIUS+delta_tower1_r);
 
-    DELTA_TOWER1_X = -SIN_60 * DELTA_RADIUS; // front left tower
-    DELTA_TOWER1_Y = -COS_60 * DELTA_RADIUS;
+    DELTA_TOWER2_X = cosf(PIOVER180*delta_tower2_a) * (DELTA_RADIUS+delta_tower2_r); // front right tower
+    DELTA_TOWER2_Y = sinf(PIOVER180*delta_tower2_a) * (DELTA_RADIUS+delta_tower2_r);
 
-    DELTA_TOWER2_X =  SIN_60 * DELTA_RADIUS; // front right tower
-    DELTA_TOWER2_Y = -COS_60 * DELTA_RADIUS;
-
-    DELTA_TOWER3_X = 0.0F; // back middle tower
-    DELTA_TOWER3_Y = DELTA_RADIUS;
+    DELTA_TOWER3_X = cosf(PIOVER180*delta_tower2_a) * (DELTA_RADIUS+delta_tower3_r); // back middle tower
+    DELTA_TOWER3_Y = sinf(PIOVER180*delta_tower2_a) * (DELTA_RADIUS+delta_tower3_r);
 }
 
 void LinearDeltaSolution::cartesian_to_actuator( float cartesian_mm[], float actuator_mm[] )
@@ -113,6 +126,31 @@ bool LinearDeltaSolution::set_optional(const arm_options_t& options) {
     if(i != options.end()) {
         arm_radius= i->second;
     }
+    i= options.find('A');
+    if(i !=options.end()){
+        delta_tower1_r=i->second;
+    }
+    i= options.find('B');
+    if(i !=options.end()){
+        delta_tower2_r=i->second;
+    }
+    i= options.find('G');
+    if(i !=options.end()){
+        delta_tower3_r=i->second;
+    }
+    i= options.find('X');
+    if(i !=options.end()){
+        delta_tower1_a=i->second;
+    }
+    i= options.find('Y');
+    if(i !=options.end()){
+        delta_tower2_a=i->second;
+    }
+    i= options.find('Z');
+    if(i !=options.end()){
+        delta_tower3_a=i->second;
+    }
+    
     init();
     return true;
 }
@@ -120,5 +158,12 @@ bool LinearDeltaSolution::set_optional(const arm_options_t& options) {
 bool LinearDeltaSolution::get_optional(arm_options_t& options) {
     options['L']= this->arm_length;
     options['R']= this->arm_radius;
+    options['A']= this->delta_tower1_r;
+    options['B']= this->delta_tower2_r;
+    options['G']= this->delta_tower3_r;
+    options['X']= this->delta_tower1_a;
+    options['Y']= this->delta_tower2_a;
+    options['Z']= this->delta_tower3_a;
+    
     return true;
 };
