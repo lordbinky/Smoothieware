@@ -27,13 +27,15 @@ class LinearDeltaSolution : public BaseSolution {
         float DELTA_TOWER2_Y;
         float DELTA_TOWER3_X;
         float DELTA_TOWER3_Y;
-        //Radial coordinate (distance) tower adjustments
-        float DELTA_TOWER1_R
-        float DELTA_TOWER2_R
-        float DELTA_TOWER3_R
-        //Angular coordinate (delta) tower adjustment
-        float DELTA_TOWER1_A
-        float DELTA_TOWER2_A
-        float DELTA_TOWER3_A
+        
+        float delta_tower1_r;
+        float delta_tower2_r;
+        float delta_tower3_r;
+        
+        float delta_tower1_a;
+        float delta_tower2_a;
+        float delta_tower3_a;
+        
+        
 };
 #endif // LINEARDELTASOLUTION_H
