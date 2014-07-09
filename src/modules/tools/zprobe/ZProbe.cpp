@@ -349,8 +349,8 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
     gcode->stream->printf("Calibrating delta radius: target %f, radius %f\n", target, this->probe_radius);
 
     // get probe points
-    float t1x, t1y, t2x, t2y, t3x, t3y;
-    std::tie(t1x, t1y, t2x, t2y, t3x, t3y) = getCoordinates(this->probe_radius);
+    float t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y;
+    std::tie(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y,) = getCoordinates(this->probe_radius);
 
     home();
     // find bed, then move to a point 5mm above it
