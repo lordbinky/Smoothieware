@@ -411,11 +411,11 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
         if(abs((dy-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Beta ");
         if(abs((dz-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Gamma \n");
         else gcode->stream->printf("None Found\n");
-        /*gcode->stream->printf("Possible Angle Position Error for Towers: ");
+        gcode->stream->printf("Possible Angular Error for Towers: ");
         if(abs((dx-day)/Z_STEPS_PER_MM) > target || abs((dx-daz)/Z_STEPS_PER_MM) > target ) printf("Alpha ");
         if(abs((dy-daz)/Z_STEPS_PER_MM) > target || abs((dy-dax)/Z_STEPS_PER_MM) > target ) printf("Beta ");
         if(abs((dz-dax)/Z_STEPS_PER_MM) > target || abs((dz-day)/Z_STEPS_PER_MM) > target ) printf("Gamma ");
-        else gcode->stream->printf("None Found\n");*/
+        else gcode->stream->printf("None Found\n");
 
         if(abs(d) <= target) break; // resolution of success
 
@@ -437,6 +437,26 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
     home();
     
     return true;
+}
+
+
+bool ZProbe::calibrate_delta_tower_radial(Gcode *gcode)
+{
+      float target=0.03F;
+      if(gcode->has_letter('I')) target= gcode->get_value('I'); //override default target
+      if(gcode->has_letter('J')) this->probe_radius = gcode->get_value('J'); //override default probe radius
+      
+      //get probe points
+      float t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y; 
+      std::tie(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y) = getCoordinates(this->probe_radius);
+      //home
+      home();
+      
+      float alpha,beta,gamma;
+      alpha=
+      
+      
+      
 }
 
 void ZProbe::on_gcode_received(void *argument)
@@ -492,6 +512,21 @@ void ZProbe::on_gcode_received(void *argument)
                     if(!calibrate_delta_radius(gcode)) {
                         gcode->stream->printf("Calibration failed to complete, probe not triggered\n");
                         return;
+                    }
+                }
+                if(gcode->has_letter('T')){
+                    if(!calibrate_delta_tower_position(gcode)){
+                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n")
+                    }
+                }
+                if(gcode->has_letter('D')){
+                    if(!calibrate_delta_tower_radial(gcode)){
+                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n")
+                    }
+                }
+                if(gcode->has_letter('A')){
+                    if(!calibrate_delta_tower_angular(gcode)){
+                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n")
                     }
                 }
                 gcode->stream->printf("Calibration complete, save settings with M500\n");
