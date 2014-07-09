@@ -179,14 +179,17 @@ bool ZProbe::return_probe(int steps)
 }
 
 // calculate the X and Y positions for the three towers given the radius from the center
-static std::tuple<float, float, float, float, float, float> getCoordinates(float radius)
+static std::tuple<float, float, float, float, float, float, float, float, float, float, float, float> getCoordinates(float radius)
 {
-    float px = 0.866F * radius; // ~sin(60)
-    float py = 0.5F * radius; // cos(60)
-    float t1x = -px, t1y = -py; // X Tower
-    float t2x = px, t2y = -py; // Y Tower
-    float t3x = 0.0F, t3y = radius; // Z Tower
-    return std::make_tuple(t1x, t1y, t2x, t2y, t3x, t3y);
+    float px = 0.8660254F * radius;                 // ~sin(60)
+    float py = 0.5F * radius;                   // cos(60)
+    float t1x = -px,          t1y = -py;        // X Tower
+    float t2x = px,           t2y = -py;        // Y Tower
+    float t3x = 0.0F,         t3y = radius;     // Z Tower
+    float t4x = px,           t4y = py;         // Opposite X Tower
+    float t5x = -px,          t2y = py;         //OPposite Y Tower
+    float t6x = 0F,           t6y =-radius;     //Opposite Z Tower
+    return std::make_tuple(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y);
 }
 
 bool ZProbe::probe_delta_tower(int& steps, float x, float y)
@@ -287,7 +290,7 @@ bool ZProbe::calibrate_delta_endstops(Gcode *gcode)
     trimy += (mm.first-t2z)*trimscale;
     trimz += (mm.first-t3z)*trimscale;
 
-    for (int i = 1; i <= 10; ++i) {
+    for (int i = 1; i <= 30; ++i) {
         // set trim
         if(!set_trim(trimx, trimy, trimz, gcode->stream)) return false;
 
@@ -378,20 +381,41 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
     options.clear();
 
     float drinc= 2.5F; // approx
-    for (int i = 1; i <= 10; ++i) {
+    for (int i = 1; i <= 20; ++i) {
         // probe t1, t2, t3 and get average, but use coordinated moves, probing center won't change
-        int dx, dy, dz;
+        int dx, dy, dz,dax,day,daz;
         if(!probe_delta_tower(dx, t1x, t1y)) return false;
         gcode->stream->printf("T1-%d Z:%1.3f C:%d\n", i, dx / Z_STEPS_PER_MM, dx);
+        if(!probe_delta_tower(daz,t6x,t6y)) return false;
+        gcode->stream->printf("T6-%d Z:%1.3f C:%d\n", i, daz / Z_STEPS_PER_MM, daz);
         if(!probe_delta_tower(dy, t2x, t2y)) return false;
         gcode->stream->printf("T2-%d Z:%1.3f C:%d\n", i, dy / Z_STEPS_PER_MM, dy);
+        if(!probe_delta_tower(dax,t4x,t4y)) return false;
+        gcode->stream->printf("T4-%d Z:%1.3f C:%d\n", i, dax / Z_STEPS_PER_MM, dax);
         if(!probe_delta_tower(dz, t3x, t3y)) return false;
         gcode->stream->printf("T3-%d Z:%1.3f C:%d\n", i, dz / Z_STEPS_PER_MM, dz);
+        if(!probe_delta_tower(day,t5x,t5y)) return false;
+        gcode->stream->printf("T5-%d Z:%1.3f C:%d\n", i, day / Z_STEPS_PER_MM, day);
+        
 
         // now look at the difference and reduce it by adjusting delta radius
         float m= ((dx+dy+dz)/3.0F) / Z_STEPS_PER_MM;
         float d= cmm-m;
-        gcode->stream->printf("C-%d Z-ave:%1.4f delta: %1.3f\n", i, m, d);
+        gcode->stream->printf("C-%d Tower Z-ave:%1.4f delta: %1.3f\n", i, m, d);
+        float tm= ((dx+dy+dz+dax+day+daz)/6.0F) / Z_STEPS_PER_MM;
+        float td= cmm-tm;
+        gcode->stream->printf("C-%d Total Z-ave:%1.4f delta: %1.3f\n", i, tm,td);
+        // report Anti-tower findings for Potential Tower error.
+        gcode->stream->printf("Possible Radius Error for Towers: ");
+        if(abs((dx-dax)/Z_STEPS_PER_MM) > target) printf("Alpha ");
+        if(abs((dy-daz)/Z_STEPS_PER_MM) > target) printf("Beta ");
+        if(abs((dz-daz)/Z_STEPS_PER_MM) > target) printf("Gamma \n");
+        else gcode->stream->printf("None Found\n");
+        gcode->stream->printf("Possible Angle Position Error for Towers: ");
+        if(abs((dx-day)/Z_STEPS_PER_MM) > target || abs((dx-daz)/Z_STEPS_PER_MM) > target ) printf("Alpha ");
+        if(abs((dy-daz)/Z_STEPS_PER_MM) > target || abs((dy-dax)/Z_STEPS_PER_MM) > target ) printf("Beta ");
+        if(abs((dz-dax)/Z_STEPS_PER_MM) > target || abs((dz-day)/Z_STEPS_PER_MM) > target ) printf("Gamma ");
+        else gcode->stream->printf("None Found\n");
 
         if(abs(d) <= target) break; // resolution of success
 
@@ -410,6 +434,8 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
         // flush the output
         THEKERNEL->call_event(ON_IDLE);
     }
+    home();
+    
     return true;
 }
 
