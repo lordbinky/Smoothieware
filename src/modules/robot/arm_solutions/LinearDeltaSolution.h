@@ -34,6 +34,6 @@ class LinearDeltaSolution : public BaseSolution {
         //Angular coordinate (delta) tower adjustment
         float DELTA_TOWER1_A
         float DELTA_TOWER2_A
-        float DELTA_TOWER2_A
+        float DELTA_TOWER3_A
 };
 #endif // LINEARDELTASOLUTION_H
