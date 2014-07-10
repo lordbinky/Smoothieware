@@ -48,6 +48,10 @@
 #define Z_STEPS_PER_MM STEPS_PER_MM(Z_AXIS)
 
 #define abs(a) ((a<0) ? -a : a)
+static bool abs_compare(float a, float b)
+{
+    return (abs(a) < abs(b));
+};
 
 void ZProbe::on_module_loaded()
 {
@@ -447,6 +451,10 @@ bool ZProbe::calibrate_delta_tower_angular(Gcode *gcode)
 {
 return true;
 }
+bool ZProbe::find_radial(int Tower,streamoutput *stream){
+
+return true;
+}
 
 bool ZProbe::calibrate_delta_tower_radial(Gcode *gcode)
 {
@@ -468,10 +476,10 @@ bool ZProbe::calibrate_delta_tower_radial(Gcode *gcode)
       coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed
       
       // probe center to get reference point at this Z height
-      int dc
+      int dc;
       if(!probe_delta_tower(dc, 0, 0)) return false;
       gcode->stream->printf("CT Z:%1.3f C:%d\n", dc / Z_STEPS_PER_MM, dc);
-      float cmm= dc / Z_STEPS_PER_MM;
+    //  float cmm= dc / Z_STEPS_PER_MM;
       
       // get current delta radius
       float delta_radius= 0.0F;
@@ -485,10 +493,10 @@ bool ZProbe::calibrate_delta_tower_radial(Gcode *gcode)
       }
       options.clear();
       float alpha,beta,gamma;
-      bool alpha_error,beta_error,gamma_error;
-      alpha_error=true;
-      beta_error=true;
-      gamma_error=true;
+      bool alpha_bad,beta_bad,gamma_bad;
+      alpha_bad=true;
+      beta_bad=true;
+      gamma_bad=true;
       int blame_tower;
       for (int i = 1; i <= 20; ++i) {
             // probe towers and anti-tower positions using coordinated moves
@@ -510,21 +518,26 @@ bool ZProbe::calibrate_delta_tower_radial(Gcode *gcode)
             alpha= dx - dax;
             beta = dy - day;
             gamma= dz - daz;
-            auto mm = std::minmax({abs(alpha),abs(beta),abs(gamma)});
-            if(alpha - mm.first < target) alpha_error = false;
-            if(beta - mm.first < target)  beta_error  = false;
-            if(gamma - mm.first < target) gamma_error = false;
+            auto mm1 = minmax({alpha,beta,gamma},abs_compare);
+            if((alpha - mm1.first < target)) alpha_bad = false;
+            if((beta - mm1.first < target))  beta_bad  = false;
+            if((gamma - mm1.first < target)) gamma_bad = false;
             blame_tower=0;
-            if(!alpha_error && beta_error  && gamma_error)  blame_tower = 1;
-            if(alpha error  && !beta_error && gamma_error)  blame_tower = 2;
-            if(alpha error  && beta_error  && !gamma_error) blame_tower = 3;
-            if(alpha error  && !beta_error && !gamma_error) blame_tower = 1;
-            if(!alpha error && beta_error  && !gamma_error) blame_tower = 2;
-            if(!alpha error && !beta_error && gamma_error)  blame_tower = 3;
-            if(alpha error  && beta_error  && gamma_error)  blame_tower = 4;
-            gcode->stream->printf("Alpha Error:%b Beta Error:%b Gamma error:%b \n",alpha_error,beta_error,gamma_error);
-            gcode->stream->printf("Blame tower:%d",blame_tower);
-            
+            if( !alpha_bad &&  beta_bad &&  gamma_bad) blame_tower = 1;
+            if(  alpha_bad && !beta_bad &&  gamma_bad) blame_tower = 2;
+            if(  alpha_bad &&  beta_bad && !gamma_bad) blame_tower = 3;
+            if(  alpha_bad && !beta_bad && !gamma_bad) blame_tower = 1;
+            if(  alpha_bad &&  beta_bad && !gamma_bad) blame_tower = 2;
+            if(  alpha_bad && !beta_bad &&  gamma_bad) blame_tower = 3;
+            if(  alpha_bad &&  beta_bad &&  gamma_bad) blame_tower = 4;
+            if(alpha_bad) gcode->stream->printf("Alpha radius off ");
+				else	gcode->stream->printf("Alpha radius Good ");	
+			if(beta_bad) gcode->stream->printf("Beta radius off ");
+				else	gcode->stream->printf("Beta radius Good ");	
+			if(gamma_bad) gcode->stream->printf("Gamma radius off\n");
+				else	gcode->stream->printf("Gamma radius Good\n");	
+			gcode->stream->printf("Blame tower:%d",blame_tower);
+            }
 
             /*
             // now look at the difference and reduce it by adjusting delta radius
@@ -540,6 +553,7 @@ bool ZProbe::calibrate_delta_tower_radial(Gcode *gcode)
             if(abs((dy-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Beta ");
             if(abs((dz-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Gamma \n");*/
             
+			return true;
 }
 
 void ZProbe::on_gcode_received(void *argument)
@@ -599,17 +613,17 @@ void ZProbe::on_gcode_received(void *argument)
                 }
                 if(gcode->has_letter('T')){
                     if(!calibrate_delta_tower_position(gcode)){
-                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n")
+                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n");
                     }
                 }
                 if(gcode->has_letter('D')){
                     if(!calibrate_delta_tower_radial(gcode)){
-                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n")
+                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n");
                     }
                 }
                 if(gcode->has_letter('A')){
                     if(!calibrate_delta_tower_angular(gcode)){
-                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n")
+                        gcode->stream->printf("Calibration failed to complete, probe not triggered\n");
                     }
                 }
                 gcode->stream->printf("Calibration complete, save settings with M500\n");
