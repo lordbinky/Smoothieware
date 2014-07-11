@@ -268,17 +268,17 @@ bool ZProbe::calibrate_delta_endstops(Gcode *gcode)
     // probe the base of the X tower
     if(!probe_delta_tower(s, t1x, t1y)) return false;
     float t1z= s / Z_STEPS_PER_MM;
-    gcode->stream->printf("T1-0 Z:%1.4f C:%d\n", t1z, s);
+    gcode->stream->printf("X Trim-0 Z:%1.4f C:%d\n", t1z, s);
 
     // probe the base of the Y tower
     if(!probe_delta_tower(s, t2x, t2y)) return false;
     float t2z= s / Z_STEPS_PER_MM;
-    gcode->stream->printf("T2-0 Z:%1.4f C:%d\n", t2z, s);
+    gcode->stream->printf("Y Trim-0 Z:%1.4f C:%d\n", t2z, s);
 
     // probe the base of the Z tower
     if(!probe_delta_tower(s, t3x, t3y)) return false;
     float t3z= s / Z_STEPS_PER_MM;
-    gcode->stream->printf("T3-0 Z:%1.4f C:%d\n", t3z, s);
+    gcode->stream->printf("Z Trim-0 Z:%1.4f C:%d\n", t3z, s);
 
     float trimscale= 1.2522F; // empirically determined
 
@@ -304,17 +304,17 @@ bool ZProbe::calibrate_delta_endstops(Gcode *gcode)
         // probe the base of the X tower
         if(!probe_delta_tower(s, t1x, t1y)) return false;
         t1z= s / Z_STEPS_PER_MM;
-        gcode->stream->printf("T1-%d Z:%1.4f C:%d\n", i, t1z, s);
+        gcode->stream->printf("X Trim-%d Z:%1.4f C:%d\n", i, t1z, s);
 
         // probe the base of the Y tower
         if(!probe_delta_tower(s, t2x, t2y)) return false;
         t2z= s / Z_STEPS_PER_MM;
-        gcode->stream->printf("T2-%d Z:%1.4f C:%d\n", i, t2z, s);
+        gcode->stream->printf("Y Trim-%d Z:%1.4f C:%d\n", i, t2z, s);
 
         // probe the base of the Z tower
         if(!probe_delta_tower(s, t3x, t3y)) return false;
         t3z= s / Z_STEPS_PER_MM;
-        gcode->stream->printf("T3-%d Z:%1.4f C:%d\n", i, t3z, s);
+        gcode->stream->printf("Z Trim-%d Z:%1.4f C:%d\n", i, t3z, s);
 
         mm= std::minmax({t1z, t2z, t3z});
         if((mm.second-mm.first) <= target) {
@@ -368,7 +368,7 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
     // probe center to get reference point at this Z height
     int dc;
     if(!probe_delta_tower(dc, 0, 0)) return false;
-    gcode->stream->printf("CT Z:%1.3f C:%d\n", dc / Z_STEPS_PER_MM, dc);
+    gcode->stream->printf("Center Z:%1.3f C:%d\n", dc / Z_STEPS_PER_MM, dc);
     float cmm= dc / Z_STEPS_PER_MM;
 
     // get current delta radius
@@ -388,27 +388,27 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
         // probe t1, t2, t3 and get average, but use coordinated moves, probing center won't change
         int dx, dy, dz,dax,day,daz;
         if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        gcode->stream->printf("T1-%d Z:%1.3f C:%d\n", i, dx / Z_STEPS_PER_MM, dx);
+        gcode->stream->printf("%d:  α Z:%1.3f C:%d\n", i, dx / Z_STEPS_PER_MM, dx);
         if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        gcode->stream->printf("T6-%d Z:%1.3f C:%d\n", i, daz / Z_STEPS_PER_MM, daz);
+        gcode->stream->printf("%d: Γª Z:%1.3f C:%d\n", i, daz / Z_STEPS_PER_MM, daz);
         if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        gcode->stream->printf("T2-%d Z:%1.3f C:%d\n", i, dy / Z_STEPS_PER_MM, dy);
+        gcode->stream->printf("%d:  ß Z:%1.3f C:%d\n", i, dy / Z_STEPS_PER_MM, dy);
         if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        gcode->stream->printf("T4-%d Z:%1.3f C:%d\n", i, dax / Z_STEPS_PER_MM, dax);
+        gcode->stream->printf("%d: αª Z:%1.3f C:%d\n", i, dax / Z_STEPS_PER_MM, dax);
         if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        gcode->stream->printf("T3-%d Z:%1.3f C:%d\n", i, dz / Z_STEPS_PER_MM, dz);
+        gcode->stream->printf("%d:  Γ Z:%1.3f C:%d\n", i, dz / Z_STEPS_PER_MM, dz);
         if(!probe_delta_tower(day,t5x,t5y)) return false;
-        gcode->stream->printf("T5-%d Z:%1.3f C:%d\n", i, day / Z_STEPS_PER_MM, day);
+        gcode->stream->printf("%d: ßª Z:%1.3f C:%d\n", i, day / Z_STEPS_PER_MM, day);
         
 
         // now look at the difference and reduce it by adjusting delta radius
         float m= ((dx+dy+dz)/3.0F) / Z_STEPS_PER_MM;
         float d= cmm-m;
-        gcode->stream->printf("C-%d Tower Z-ave:%1.4f delta: %1.3f\n", i, m, d);
+        gcode->stream->printf("%d: Tower Z-ave:%1.4f difference: %1.3f\n", i, m, d);
         float tm= ((dx+dy+dz+dax+day+daz)/6.0F) / Z_STEPS_PER_MM;
         float td= cmm-tm;
-        gcode->stream->printf("C-%d Total Z-ave:%1.4f delta: %1.3f\n", i, tm,td);
-        // report Anti-tower findings for Potential Tower error.
+        gcode->stream->printf("%d: Total Z-ave:%1.4f difference: %1.3f\n", i, tm,td);
+/*       // report Anti-tower findings for Potential Tower error.
         gcode->stream->printf("Possible Radius Error for Towers: ");
         if(abs((dx-dax)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Alpha ");
         if(abs((dy-daz)/Z_STEPS_PER_MM) > target) gcode->stream->printf("Beta ");
@@ -419,7 +419,7 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
         if(abs((dy-daz)/Z_STEPS_PER_MM) > target || abs((dy-dax)/Z_STEPS_PER_MM) > target ) printf("Beta ");
         if(abs((dz-dax)/Z_STEPS_PER_MM) > target || abs((dz-day)/Z_STEPS_PER_MM) > target ) printf("Gamma ");
         else gcode->stream->printf("None Found\n");
-
+*/
         if(abs(d) <= target) break; // resolution of success
 
         // increase delta radius to adjust for low center
