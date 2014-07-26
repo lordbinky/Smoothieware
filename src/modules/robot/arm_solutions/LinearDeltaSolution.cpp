@@ -54,8 +54,8 @@ void LinearDeltaSolution::init() {
     DELTA_TOWER2_X = cosf(PIOVER180*delta_tower2_a) * (DELTA_RADIUS+delta_tower2_r); // front right tower
     DELTA_TOWER2_Y = sinf(PIOVER180*delta_tower2_a) * (DELTA_RADIUS+delta_tower2_r);
 
-    DELTA_TOWER3_X = cosf(PIOVER180*delta_tower2_a) * (DELTA_RADIUS+delta_tower3_r); // back middle tower
-    DELTA_TOWER3_Y = sinf(PIOVER180*delta_tower2_a) * (DELTA_RADIUS+delta_tower3_r);
+    DELTA_TOWER3_X = cosf(PIOVER180*delta_tower3_a) * (DELTA_RADIUS+delta_tower3_r); // back middle tower
+    DELTA_TOWER3_Y = sinf(PIOVER180*delta_tower3_a) * (DELTA_RADIUS+delta_tower3_r);
 }
 
 void LinearDeltaSolution::cartesian_to_actuator( float cartesian_mm[], float actuator_mm[] )
