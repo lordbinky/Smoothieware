@@ -11,6 +11,8 @@
 #include "Module.h"
 #include "Pin.h"
 
+#include <vector>
+
 class StepperMotor;
 class Gcode;
 class StreamOutput;
@@ -33,12 +35,16 @@ private:
     bool return_probe(int steps);
     bool calibrate_delta_endstops(Gcode *gcode,bool keep);
     bool calibrate_delta_radius(Gcode *gcode);
-    bool calibrate_delta_tower_position(Gcode *gcode);
-    bool calibrate_delta_tower_radial(Gcode *gcode);
+    bool calibrate_delta_tower_position(Gcode *gcode,int suggested_tower);
+    bool calibrate_delta_tower_geometry(Gcode *gcode);
+	bool assess_consistancy(Gcode *gcode);
+	bool fix_delta_tower_position(Gcode *gcode,int blame_tower);
+	bool fix_delta_tower_radius(Gcode *gcode, int blame_tower);
     void coordinated_move(float x, float y, float z, float feedrate, bool relative=false);
     void home();
     bool set_trim(float x, float y, float z, StreamOutput *stream);
     bool get_trim(float& x, float& y, float& z);
+
 
     float          probe_radius;
     float          probe_height;
