@@ -134,7 +134,7 @@ bool LinearDeltaSolution::set_optional(const arm_options_t& options) {
     if(i !=options.end()){
         delta_tower2_r=i->second;
     }
-    i= options.find('G');
+    i= options.find('C');
     if(i !=options.end()){
         delta_tower3_r=i->second;
     }
@@ -160,7 +160,7 @@ bool LinearDeltaSolution::get_optional(arm_options_t& options) {
     options['R']= this->arm_radius;
     options['A']= this->delta_tower1_r;
     options['B']= this->delta_tower2_r;
-    options['G']= this->delta_tower3_r;
+    options['C']= this->delta_tower3_r;
     options['X']= this->delta_tower1_a;
     options['Y']= this->delta_tower2_a;
     options['Z']= this->delta_tower3_a;

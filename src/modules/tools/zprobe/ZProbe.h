@@ -44,6 +44,7 @@ private:
     void home();
     bool set_trim(float x, float y, float z, StreamOutput *stream);
     bool get_trim(float& x, float& y, float& z);
+	bool assess_bed(Gcode *gcode);
 
 
     float          probe_radius;
