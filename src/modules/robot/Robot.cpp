@@ -467,7 +467,7 @@ void Robot::on_gcode_received(void *argument)
                 if(arm_solution->get_optional(options) && !options.empty()) {
                     gcode->stream->printf(";Optional arm solution specific settings:\nM665");
                     for(auto &i : options) {
-                        gcode->stream->printf(" %c%1.4f", i.first, i.second);
+                        gcode->stream->printf(" %c%1.4f\n", i.first, i.second);
                     }
                     gcode->stream->printf("\n");
                 }

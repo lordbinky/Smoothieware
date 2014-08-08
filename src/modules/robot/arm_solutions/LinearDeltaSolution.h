@@ -34,8 +34,6 @@ class LinearDeltaSolution : public BaseSolution {
         
         float delta_tower1_a;
         float delta_tower2_a;
-        float delta_tower3_a;
-        
-        
+		float delta_tower3_a;        
 };
 #endif // LINEARDELTASOLUTION_H

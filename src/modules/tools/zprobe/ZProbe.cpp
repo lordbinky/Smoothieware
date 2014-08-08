@@ -274,17 +274,17 @@ bool ZProbe::calibrate_delta_endstops(Gcode *gcode, bool keep)
     // probe the base of the X tower
     if(!probe_delta_tower(s, t1x, t1y)) return false;
     float t1z= s / Z_STEPS_PER_MM;
-    if(verbose) gcode->stream->printf("0: T1 Z:%1.3f Steps:%d\n", t1z, s);
+    if(verbose) gcode->stream->printf("0: T1 Z:%1.5f Steps:%d\n", t1z, s);
 
     // probe the base of the Y tower
     if(!probe_delta_tower(s, t2x, t2y)) return false;
     float t2z= s / Z_STEPS_PER_MM;
-    if(verbose) gcode->stream->printf("0: T2 Z:%1.3f Steps:%d\n", t2z, s);
+    if(verbose) gcode->stream->printf("0: T2 Z:%1.5f Steps:%d\n", t2z, s);
 
     // probe the base of the Z tower
     if(!probe_delta_tower(s, t3x, t3y)) return false;
     float t3z= s / Z_STEPS_PER_MM;
-    if(verbose) gcode->stream->printf("0: T3 Z:%1.3f Steps:%d\n", t3z, s);
+    if(verbose) gcode->stream->printf("0: T3 Z:%1.5f Steps:%d\n", t3z, s);
   
     float trimscale= 1.1261F; // empirically determined
 
@@ -353,7 +353,7 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
     if(gcode->has_letter('I')) target= gcode->get_value('I'); // override default target
     if(gcode->has_letter('J')) this->probe_radius= gcode->get_value('J'); // override default probe radius
 
-    if(verbose) gcode->stream->printf("Calibrating delta radius: target %1.3f, radius %1.3f\n", target, this->probe_radius);
+    if(verbose) gcode->stream->printf("Calibrating delta radius: target %1.5f, radius %1.5f\n", target, this->probe_radius);
 
     // get probe points
     float t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y;
@@ -372,7 +372,7 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
     // probe center to get reference point at this Z height
     int dc;
     if(!probe_delta_tower(dc, 0, 0)) return false;
-    if(verbose) gcode->stream->printf("CT Z:%1.3f C:%d\n", dc / Z_STEPS_PER_MM, dc);
+    if(verbose) gcode->stream->printf("CT Z:%1.5f C:%d\n", dc / Z_STEPS_PER_MM, dc);
     float cmm= dc / Z_STEPS_PER_MM;
 
     // get current delta radius
@@ -392,26 +392,26 @@ bool ZProbe::calibrate_delta_radius(Gcode *gcode)
         // probe t1, t2, t3 and get average, but use coordinated moves, probing center won't change
         int dx, dy, dz,dax,day,daz;
         if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        if(verbose) gcode->stream->printf("DR%d: T1 %1.3f %1.3f Z:%1.3f Steps:%d\n", i,t1x,t1y, dx / Z_STEPS_PER_MM, dx);
+        if(verbose) gcode->stream->printf("DR%d: T1 %1.5f %1.5f Z:%1.5f Steps:%d\n", i,t1x,t1y, dx / Z_STEPS_PER_MM, dx);
         if(verbose){if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        if(verbose) gcode->stream->printf("DR%d: T6 %1.3f %1.3f Z:%1.3f Steps:%d\n", i,t6x,t6y, daz / Z_STEPS_PER_MM, daz);};
+        if(verbose) gcode->stream->printf("DR%d: T6 %1.5f %1.5f Z:%1.5f Steps:%d\n", i,t6x,t6y, daz / Z_STEPS_PER_MM, daz);};
         if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        if(verbose) gcode->stream->printf("DR%d: T2 %1.3f %1.3f Z:%1.3f Steps:%d\n", i,t2x,t2y, dy / Z_STEPS_PER_MM, dy);
+        if(verbose) gcode->stream->printf("DR%d: T2 %1.5f %1.5f Z:%1.5f Steps:%d\n", i,t2x,t2y, dy / Z_STEPS_PER_MM, dy);
         if(verbose){if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        if(verbose) gcode->stream->printf("DR%d: T4 %1.3f %1.3f Z:%1.3f Steps:%d\n", i,t4x,t4y, dax / Z_STEPS_PER_MM, dax);};
+        if(verbose) gcode->stream->printf("DR%d: T4 %1.5f %1.5f Z:%1.5f Steps:%d\n", i,t4x,t4y, dax / Z_STEPS_PER_MM, dax);};
         if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        if(verbose) gcode->stream->printf("DR%d: T3 %1.3f %1.3f Z:%1.3f Steps:%d\n", i,t3x,t3y, dz / Z_STEPS_PER_MM, dz);
+        if(verbose) gcode->stream->printf("DR%d: T3 %1.5f %1.5f Z:%1.5f Steps:%d\n", i,t3x,t3y, dz / Z_STEPS_PER_MM, dz);
 		if(verbose){if(!probe_delta_tower(day,t5x,t5y)) return false;
-        if(verbose) gcode->stream->printf("DR%d: T5 %1.3f %1.3f Z:%1.3f Steps:%d\n", i,t6x,t1y, day / Z_STEPS_PER_MM, day);};
+        if(verbose) gcode->stream->printf("DR%d: T5 %1.5f %1.5f Z:%1.5f Steps:%d\n", i,t6x,t1y, day / Z_STEPS_PER_MM, day);};
         
 
         // now look at the difference and reduce it by adjusting delta radius
         float m= ((dx+dy+dz)/3.0F) / Z_STEPS_PER_MM;
         float d= cmm-m;
-        gcode->stream->printf("%d: Tower Z-ave:%1.4f Off by: %1.3f\n", i, m, d);
+        gcode->stream->printf("%d: Tower Z-ave:%1.4f Off by: %1.5f\n", i, m, d);
        if(verbose){ float tm= ((dx+dy+dz+dax+day+daz)/6.0F) / Z_STEPS_PER_MM;
         float td= cmm-tm;
-        gcode->stream->printf("%d: 6 Point Z-ave:%1.4f Off by: %1.3f\n", i, tm,td);
+        gcode->stream->printf("%d: 6 Point Z-ave:%1.4f Off by: %1.5f\n", i, tm,td);
 		};
        if(abs(d) <= target) break; // resolution of success
 
@@ -440,7 +440,7 @@ bool ZProbe::assess_bed(Gcode *gcode)
     std::tie(t1x, t1y, t2x, t2y, t3x, t3y, t4x, t4y, t5x, t5y, t6x, t6y) = getCoordinates(this->probe_radius);
 	BaseSolution::arm_options_t options;
 	THEKERNEL->robot->arm_solution->get_optional(options);
-	gcode->stream->printf("A%1.3f \t B%1.3f \t G%1.3f \t R%1.3f \t L%1.3f \t X%1.3f \t Y%1.3f \t Z%1.3f \n", options['A'],options['B'],options['C'],options['R'],options['L'],options['X'],options['Y'],options['Z']);
+	gcode->stream->printf("A%1.5f \t B%1.5f \t C%1.5f \t X%1.5f \t Y%1.5f \t Z%1.5f \t R%1.5f \t L%1.5f \n", options['A'],options['B'],options['C'],options['D'],options['E'],options['F'],options['R'],options['L']);
 	int dx, dy, dz,dax,day,daz,s;
 	float temp1,temp2;
 	home();
@@ -451,43 +451,66 @@ bool ZProbe::assess_bed(Gcode *gcode)
 	coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true);	
 	int dc;
 	if(!probe_delta_tower(dc, 0, 0)) return false;
-	gcode->stream->printf("CT\t Z:%1.3f \t Steps:%d\n", dc / Z_STEPS_PER_MM, dc);
+	gcode->stream->printf("CT\t %1.5f \n", dc / Z_STEPS_PER_MM);
     if(!probe_delta_tower(dx, t1x, t1y)) return false;
-     gcode->stream->printf(" A\t %1.3f \t %1.3f \t %1.3f\n",t1x,t1y,  dx / Z_STEPS_PER_MM);
+     gcode->stream->printf(" A\t%1.5f\t\t%1.5f\t%1.5f\n",t1x,t1y,  dx / Z_STEPS_PER_MM);
     if(!probe_delta_tower(daz,t6x,t6y)) return false;
-     gcode->stream->printf("-G\t %1.3f \t %1.3f \t %1.3f\n",t6x,t6y, daz / Z_STEPS_PER_MM);
+     gcode->stream->printf("-G\t%1.5f\t\t%1.5f\t%1.5f\n",t6x,t6y, daz / Z_STEPS_PER_MM);
     if(!probe_delta_tower(dy, t2x, t2y)) return false;
-     gcode->stream->printf(" B\t %1.3f \t %1.3f \t %1.3f\n",t2x,t2y, dy / Z_STEPS_PER_MM);
+     gcode->stream->printf(" B\t%1.5f\t\t%1.5f\t%1.5f\n",t2x,t2y, dy / Z_STEPS_PER_MM);
     if(!probe_delta_tower(dax,t4x,t4y)) return false;
-     gcode->stream->printf("-A\t %1.3f \t %1.3f \t %1.3f\n",t4x,t4y, dax / Z_STEPS_PER_MM);
+     gcode->stream->printf("-A\t%1.5f\t\t%1.5f\t%1.5f\n",t4x,t4y, dax / Z_STEPS_PER_MM);
     if(!probe_delta_tower(dz, t3x, t3y)) return false;
-     gcode->stream->printf(" G\t %1.3f \t %1.3f \t %1.3f\n",t3x,t3y, dz / Z_STEPS_PER_MM);
+     gcode->stream->printf(" G\t%1.5f\t\t%1.5f\t%1.5f\n",t3x,t3y, dz / Z_STEPS_PER_MM);
     if(!probe_delta_tower(day,t5x,t5y)) return false;
-     gcode->stream->printf("-B\t %1.3f \t %1.3f \t %1.3f\n",t5x,t5y, day / Z_STEPS_PER_MM);
+     gcode->stream->printf("-B\t%1.5f\t\t%1.5f\t%1.5f\n",t5x,t5y, day / Z_STEPS_PER_MM);
 	temp1 = t1x /2;
 	temp2 = t1y /2;
     if(!probe_delta_tower(dx, temp1,temp2)) return false;
-    gcode->stream->printf(" A/2\t %1.3f \t %1.3f \t %1.3f\n",temp1,temp2,  dx / Z_STEPS_PER_MM);
+    gcode->stream->printf(" A/2\t%1.5f\t\t%1.5f\t%1.5f\n",temp1,temp2,  dx / Z_STEPS_PER_MM);
 	temp1 = t6x /2;
 	temp2 = t6y /2;
     if(!probe_delta_tower(daz, temp1,temp2)) return false;
-    gcode->stream->printf("-G/2\t %1.3f \t %1.3f \t %1.3f\n",t6x/2,t6y/2, daz / Z_STEPS_PER_MM);
+    gcode->stream->printf("-G/2\t%1.5f\t\t%1.5f\t%1.5f\n",t6x/2,t6y/2, daz / Z_STEPS_PER_MM);
 	temp1 = t2x /2;
 	temp2 = t2y /2;
     if(!probe_delta_tower(dy, temp1,temp2)) return false;
-    gcode->stream->printf(" B/2\t %1.3f \t %1.3f \t %1.3f\n",t2x/2,t2y/2, dy / Z_STEPS_PER_MM);
+    gcode->stream->printf(" B/2\t%1.5f\t\t%1.5f\t%1.5f\n",t2x/2,t2y/2, dy / Z_STEPS_PER_MM);
 	temp1 = t4x /2;
 	temp2 = t4y /2;
     if(!probe_delta_tower(dax, temp1,temp2)) return false;
-    gcode->stream->printf("-A/2\t %1.3f \t %1.3f \t %1.3f\n",t4x/2,t4y/2, dax / Z_STEPS_PER_MM);
+    gcode->stream->printf("-A/2\t%1.5f\t\t%1.5f\t%1.5f\n",t4x/2,t4y/2, dax / Z_STEPS_PER_MM);
 	temp1 = t3x /2;
 	temp2 = t3y /2;
     if(!probe_delta_tower(dz, temp1,temp2)) return false;
-    gcode->stream->printf(" G/2\t %1.3f \t %1.3f \t %1.3f\n",t3x/2,t3y/2, dz / Z_STEPS_PER_MM);
+    gcode->stream->printf(" G/2\t%1.5f\t\t%1.5f\t%1.5f\n",t3x/2,t3y/2, dz / Z_STEPS_PER_MM);
 	temp1 = t5x /2;
 	temp2 = t5y /2;
     if(!probe_delta_tower(day, temp1,temp2)) return false;
-    gcode->stream->printf("-B/2\t %1.3f \t %1.3f \t %1.3f\n",t5x/2,t5y/2, day / Z_STEPS_PER_MM);
+    gcode->stream->printf("-B/2\t%1.5f\t\t%1.5f\t%1.5f\n",t5x/2,t5y/2, day / Z_STEPS_PER_MM);
+	float cartesian[3];
+	float actuator[3];
+	cartesian[0]= 0; cartesian[1]= 0; cartesian[2]= bedht+ (dx / Z_STEPS_PER_MM);
+	THEKERNEL->robot->arm_solution->cartesian_to_actuator(cartesian,actuator);
+	gcode->stream->printf("[[%1.5f,%1.5f,%1.5f]\n",actuator[0],actuator[1],actuator[2]);
+	cartesian[0]= t1x; cartesian[1]= t1y; cartesian[2]= bedht+ (dx / Z_STEPS_PER_MM);
+	THEKERNEL->robot->arm_solution->cartesian_to_actuator(cartesian,actuator);
+	gcode->stream->printf(",[%1.5f,%1.5f,%1.5f]\n",actuator[0],actuator[1],actuator[2]);
+	cartesian[0]= t6x; cartesian[1]= t6y; cartesian[2]= bedht+ (daz / Z_STEPS_PER_MM);
+	THEKERNEL->robot->arm_solution->cartesian_to_actuator(cartesian,actuator);
+	gcode->stream->printf(",[%1.5f,%1.5f,%1.5f]\n",actuator[0],actuator[1],actuator[2]);
+	cartesian[0]= t2x; cartesian[1]= t2y; cartesian[2]= bedht+ (dy / Z_STEPS_PER_MM);
+	THEKERNEL->robot->arm_solution->cartesian_to_actuator(cartesian,actuator);
+	gcode->stream->printf(",[%1.5f,%1.5f,%1.5f]\n",actuator[0],actuator[1],actuator[2]);
+	cartesian[0]= t4x; cartesian[1]= t4y; cartesian[2]= bedht+ (dax / Z_STEPS_PER_MM);
+	THEKERNEL->robot->arm_solution->cartesian_to_actuator(cartesian,actuator);
+	gcode->stream->printf(",[%1.5f,%1.5f,%1.5f]\n",actuator[0],actuator[1],actuator[2]);
+	cartesian[0]= t3x; cartesian[1]= t3y; cartesian[2]= bedht+ (dz / Z_STEPS_PER_MM);
+	THEKERNEL->robot->arm_solution->cartesian_to_actuator(cartesian,actuator);
+	gcode->stream->printf(",[%1.5f,%1.5f,%1.5f]\n",actuator[0],actuator[1],actuator[2]);
+	cartesian[0]= t5x; cartesian[1]= t5y; cartesian[2]= bedht+ (day / Z_STEPS_PER_MM);
+	THEKERNEL->robot->arm_solution->cartesian_to_actuator(cartesian,actuator);
+	gcode->stream->printf(",[%1.5f,%1.5f,%1.5f]\n",actuator[0],actuator[1],actuator[2]);	
 	
 	 return true;
 }
@@ -526,35 +549,35 @@ bool ZProbe::calibrate_delta_tower_geometry(Gcode *gcode)
 		// probe t1, t2, t3 and get average, but use coordinated moves, probing center won't change
         int dx, dy, dz,dax,day,daz;
         if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        if(verbose)gcode->stream->printf("G%d:\t A \tZ:%1.3f \tSteps:%d\n", i, dx / Z_STEPS_PER_MM, dx);
+        if(verbose)gcode->stream->printf("G%d:\t A \tZ:%1.5f \tSteps:%d\n", i, dx / Z_STEPS_PER_MM, dx);
         if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        if(verbose)gcode->stream->printf("G%d:\t!G \tZ:%1.3f \tSteps:%d\n", i, daz / Z_STEPS_PER_MM, daz);
+        if(verbose)gcode->stream->printf("G%d:\t!G \tZ:%1.5f \tSteps:%d\n", i, daz / Z_STEPS_PER_MM, daz);
         if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        if(verbose)gcode->stream->printf("G%d:\t B \tZ:%1.3f \tSteps:%d\n", i, dy / Z_STEPS_PER_MM, dy);
+        if(verbose)gcode->stream->printf("G%d:\t B \tZ:%1.5f \tSteps:%d\n", i, dy / Z_STEPS_PER_MM, dy);
         if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        if(verbose)gcode->stream->printf("G%d:\t!A \tZ:%1.3f \tSteps:%d\n", i, dax / Z_STEPS_PER_MM, dax);
+        if(verbose)gcode->stream->printf("G%d:\t!A \tZ:%1.5f \tSteps:%d\n", i, dax / Z_STEPS_PER_MM, dax);
         if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        if(verbose)gcode->stream->printf("G%d:\t G \tZ:%1.3f \tSteps:%d\n", i, dz / Z_STEPS_PER_MM, dz);
+        if(verbose)gcode->stream->printf("G%d:\t G \tZ:%1.5f \tSteps:%d\n", i, dz / Z_STEPS_PER_MM, dz);
         if(!probe_delta_tower(day,t5x,t5y)) return false;
-        if(verbose)gcode->stream->printf("G%d:\t!B \tZ:%1.3f \tSteps:%d\n", i, day / Z_STEPS_PER_MM, day);
+        if(verbose)gcode->stream->printf("G%d:\t!B \tZ:%1.5f \tSteps:%d\n", i, day / Z_STEPS_PER_MM, day);
 		
 		// report Anti-tower findings for Potential Tower error.
 		//Tower Radius reporting.
 		temp1= dx-dax;
 		temp1= abs(temp1);
 		temp1= temp1/Z_STEPS_PER_MM;
-        if( temp1 > target ) gcode->stream->printf("Marlin Method:Alpha Tower Radius: Bad Difference:%1.3f \n",temp1);
-		if( temp1 <= target) gcode->stream->printf("Marlin Method:Alpha Tower Radius: Good Difference:%1.3f \n",temp1);
+        if( temp1 > target ) gcode->stream->printf("Marlin Method:Alpha Tower Radius: Bad Difference:%1.5f \n",temp1);
+		if( temp1 <= target) gcode->stream->printf("Marlin Method:Alpha Tower Radius: Good Difference:%1.5f \n",temp1);
 		temp1= dy-day;
 		temp1= abs(temp1);
 		temp1= temp1/Z_STEPS_PER_MM;
-		if( temp1 > target ) gcode->stream->printf("Marlin Method:Beta Tower Radius: Bad Difference:%1.3f \n",temp1);
-		if( temp1 <= target) gcode->stream->printf("Marlin Method:Beta Tower Radius: Good Difference:%1.3f \n",temp1);
+		if( temp1 > target ) gcode->stream->printf("Marlin Method:Beta Tower Radius: Bad Difference:%1.5f \n",temp1);
+		if( temp1 <= target) gcode->stream->printf("Marlin Method:Beta Tower Radius: Good Difference:%1.5f \n",temp1);
         temp1= dz-daz;
 		temp1= abs(temp1);
 		temp1= temp1/Z_STEPS_PER_MM;
-		if( temp1 > target ) gcode->stream->printf("Marlin Method:Gamma Tower Radius: Bad Difference:%1.3f \n",temp1);
-		if( temp1 <= target) gcode->stream->printf("Marlin Method:Gamma Tower Radius: Good Difference:%1.3f \n",temp1);
+		if( temp1 > target ) gcode->stream->printf("Marlin Method:Gamma Tower Radius: Bad Difference:%1.5f \n",temp1);
+		if( temp1 <= target) gcode->stream->printf("Marlin Method:Gamma Tower Radius: Good Difference:%1.5f \n",temp1);
 		
 		//Tower Angle Reporting
         temp1 = dx-day;//X tower
@@ -563,24 +586,24 @@ bool ZProbe::calibrate_delta_tower_geometry(Gcode *gcode)
 		temp1= temp1/Z_STEPS_PER_MM;
 		temp2= abs(temp2);
 		temp2= temp2/Z_STEPS_PER_MM;
-		if(temp1 > target || temp2 > target ) gcode->stream->printf("Marlin Method:Alpha Angle: Bad  Left:%1.3f Right:%1.3f \n",temp1,temp2);
-		if(temp1 <= target && temp2 <= target ) gcode->stream->printf("Marlin Method:Alpha Angle: Good  Left:%1.3f Right:%1.3f \n",temp1,temp2);
+		if(temp1 > target || temp2 > target ) gcode->stream->printf("Marlin Method:Alpha Angle: Bad  Left:%1.5f Right:%1.5f \n",temp1,temp2);
+		if(temp1 <= target && temp2 <= target ) gcode->stream->printf("Marlin Method:Alpha Angle: Good  Left:%1.5f Right:%1.5f \n",temp1,temp2);
 		temp1 = dy-daz;//Y Tower
 		temp2 = dy-dax;
 		temp1= abs(temp1);
 		temp1= temp1/Z_STEPS_PER_MM;
 		temp2= abs(temp2);
 		temp2= temp2/Z_STEPS_PER_MM;
-		if(temp1 > target || temp2 > target ) gcode->stream->printf("Marlin Method:Beta Angle: Bad  Left:%1.3f Right:%1.3f \n",temp1,temp2);
-		if(temp1 <= target && temp2 <= target ) gcode->stream->printf("Marlin Method:Beta Angle: Good  Left:%1.3f Right:%1.3f \n",temp1,temp2);
+		if(temp1 > target || temp2 > target ) gcode->stream->printf("Marlin Method:Beta Angle: Bad  Left:%1.5f Right:%1.5f \n",temp1,temp2);
+		if(temp1 <= target && temp2 <= target ) gcode->stream->printf("Marlin Method:Beta Angle: Good  Left:%1.5f Right:%1.5f \n",temp1,temp2);
 		temp1 = dz-dax;// Z Tower
 		temp2 = dz-day;
 		temp1= abs(temp1);
 		temp1= temp1/Z_STEPS_PER_MM;
 		temp2= abs(temp2);
 		temp2= temp2/Z_STEPS_PER_MM;
-		if(temp1 > target || temp2 > target ) gcode->stream->printf("Marlin Method:Gamma Angle: Bad  Left:%1.3f Right:%1.3f \n",temp1,temp2);
-		if(temp1 <= target && temp2 <= target ) gcode->stream->printf("Marlin Method:Gamma Angle: Good  Left:%1.3f Right:%1.3f \n",temp1,temp2);
+		if(temp1 > target || temp2 > target ) gcode->stream->printf("Marlin Method:Gamma Angle: Bad  Left:%1.5f Right:%1.5f \n",temp1,temp2);
+		if(temp1 <= target && temp2 <= target ) gcode->stream->printf("Marlin Method:Gamma Angle: Good  Left:%1.5f Right:%1.5f \n",temp1,temp2);
         //get difference of tower and anti-tower positions
         alpha= (dx - dax);
 		gcode->stream->printf("Binky's Method: Alpha and -Alpha difference: %1.2f \n",alpha/ Z_STEPS_PER_MM);
@@ -598,11 +621,11 @@ bool ZProbe::calibrate_delta_tower_geometry(Gcode *gcode)
 		itemp=abs(alpha);
 		temp1=itemp / Z_STEPS_PER_MM;
         if(temp1 < target) alpha_bad = false;
-		gcode->stream->printf("temp %1.3f",temp1);
+		gcode->stream->printf("temp %1.5f",temp1);
 		itemp=abs(beta);
 		temp1=itemp / Z_STEPS_PER_MM;
         if(temp1 < target) beta_bad  = false;
-		gcode->stream->printf("temp %1.3f",temp1);
+		gcode->stream->printf("temp %1.5f",temp1);
 		itemp=abs(gamma);
 		temp1=itemp / Z_STEPS_PER_MM;
         if(temp1 < target) gamma_bad = false;
@@ -657,17 +680,17 @@ bool ZProbe::fix_delta_tower_radius(Gcode *gcode,int blame_tower)
 		home();
 		coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true);
         if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  A Z:%1.3f Steps:%d\n",  dx / Z_STEPS_PER_MM, dx);
-        if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -G Z:%1.3f Steps:%d\n", daz / Z_STEPS_PER_MM, daz);
+        if(verbose || verbose1) gcode->stream->printf("TR:  A Z:%1.5f Steps:%d\n",  dx / Z_STEPS_PER_MM, dx);
+        //if(!probe_delta_tower(daz,t6x,t6y)) return false;
+        //if(verbose || verbose1) gcode->stream->printf("TR: -G Z:%1.5f Steps:%d\n", daz / Z_STEPS_PER_MM, daz);
         if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  B Z:%1.3f Steps:%d\n", dy / Z_STEPS_PER_MM, dy);
-        if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -A Z:%1.3f Steps:%d\n", dax / Z_STEPS_PER_MM, dax);
+        if(verbose || verbose1) gcode->stream->printf("TR:  B Z:%1.5f Steps:%d\n", dy / Z_STEPS_PER_MM, dy);
+        //if(!probe_delta_tower(dax,t4x,t4y)) return false;
+        //if(verbose || verbose1) gcode->stream->printf("TR: -A Z:%1.5f Steps:%d\n", dax / Z_STEPS_PER_MM, dax);
         if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  G Z:%1.3f Steps:%d\n", dz / Z_STEPS_PER_MM, dz);
-        if(!probe_delta_tower(day,t5x,t5y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -B Z:%1.3f Steps:%d\n", day / Z_STEPS_PER_MM, day);
+        if(verbose || verbose1) gcode->stream->printf("TR:  G Z:%1.5f Steps:%d\n", dz / Z_STEPS_PER_MM, dz);
+        //if(!probe_delta_tower(day,t5x,t5y)) return false;
+        //if(verbose || verbose1) gcode->stream->printf("TR: -B Z:%1.5f Steps:%d\n", day / Z_STEPS_PER_MM, day);
 		
 	  
 	    //Begin tower radius adjustment
@@ -708,7 +731,7 @@ bool ZProbe::fix_delta_tower_radius(Gcode *gcode,int blame_tower)
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
 					tower_radius = options['A'];	    			 
-					gcode->stream->printf("Alpha Radius Offset adjusted to %1.3f by %1.3f\n",tower_radius,adjustment);					
+					gcode->stream->printf("Alpha Radius Offset adjusted to %1.5f by %1.5f\n",tower_radius,adjustment);					
 					calibrate_delta_endstops(gcode,false);
 					home();
 					//calibrate_delta_radius(gcode);
@@ -718,16 +741,16 @@ bool ZProbe::fix_delta_tower_radius(Gcode *gcode,int blame_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed
 					if(!probe_delta_tower(tower,t1x,t1y)) return false;
-					gcode->stream->printf(" A Tower :%1.3f Steps:%d\n",tower / Z_STEPS_PER_MM, tower);
+					gcode->stream->printf(" A Tower :%1.5f Steps:%d\n",tower / Z_STEPS_PER_MM, tower);
 					if(!probe_delta_tower(anti_tower,t4x,t4y)) return false;
-					gcode->stream->printf("-A Tower position:		 %1.3f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
+					gcode->stream->printf("-A Tower position:		 %1.5f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
 					break;
 	    		case 2 : 
 					options['B']+=adjustment;
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
 					tower_radius = options['B'];
-					gcode->stream->printf("Beta Radius Offset adjusted to %1.3f by %1.3f\n",tower_radius,adjustment);					
+					gcode->stream->printf("Beta Radius Offset adjusted to %1.5f by %1.5f\n",tower_radius,adjustment);					
 					calibrate_delta_endstops(gcode,false);
 					home();					
 					// find bed, then move to a point 5mm above it    
@@ -736,16 +759,16 @@ bool ZProbe::fix_delta_tower_radius(Gcode *gcode,int blame_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed					
 					if(!probe_delta_tower(tower,t2x,t2y)) return false;
-					gcode->stream->printf(" B Tower :%1.3f Steps:%d\n",tower / Z_STEPS_PER_MM, tower);
+					gcode->stream->printf(" B Tower :%1.5f Steps:%d\n",tower / Z_STEPS_PER_MM, tower);
 					if(!probe_delta_tower(anti_tower,t5x,t5y)) return false;
-					gcode->stream->printf("-B Tower position:		 %1.3f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
+					gcode->stream->printf("-B Tower position:		 %1.5f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
 					break;
 	    		case 3 :
 					options['C']+=adjustment;									
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
 					tower_radius = options['C'];
-					gcode->stream->printf("Gamma Radius Offset adjusted to %1.3f by %1.3f\n",tower_radius,adjustment);
+					gcode->stream->printf("Gamma Radius Offset adjusted to %1.5f by %1.5f\n",tower_radius,adjustment);
 					calibrate_delta_endstops(gcode,false);
 					home();
 					// find bed, then move to a point 5mm above it    
@@ -754,34 +777,34 @@ bool ZProbe::fix_delta_tower_radius(Gcode *gcode,int blame_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed
 					if(!probe_delta_tower(tower,t3x,t3y)) return false;
-					gcode->stream->printf(" G Tower :%1.3f Steps:%d\n",tower / Z_STEPS_PER_MM, tower);
+					gcode->stream->printf(" G Tower :%1.5f Steps:%d\n",tower / Z_STEPS_PER_MM, tower);
 					if(!probe_delta_tower(anti_tower,t6x,t6y)) return false;
-					gcode->stream->printf("-G Tower position:		 %1.3f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
+					gcode->stream->printf("-G Tower position:		 %1.5f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
 					break;
 	    	};
 	    	//Average the unblamed anti-tower positions
 			tower_z=tower/Z_STEPS_PER_MM;
 			prev_diff = diff;
 			diff = ((anti_tower/Z_STEPS_PER_MM) - tower_z);			
-			gcode->stream->printf("Off by %1.3f. Previously off by %1.3f \n",diff,prev_diff);
+			gcode->stream->printf("Off by %1.5f. Previously off by %1.5f \n",diff,prev_diff);
 			/*if(abs(diff) > abs(prev_diff) ){
-				gcode->stream->printf("Odd...Things got worse, it was previously off by %1.3f\n",prev_diff);
+				gcode->stream->printf("Odd...Things got worse, it was previously off by %1.5f\n",prev_diff);
 			}else{
-			gcode->stream->printf("Look at that, things are getting better. It was previously off by %1.3f\n",prev_diff);
+			gcode->stream->printf("Look at that, things are getting better. It was previously off by %1.5f\n",prev_diff);
 			};*/
 	    	//Overshoot detection
 	    	//half adjustment amount and reverse direction of change
 	    	if((anti_tower/ Z_STEPS_PER_MM < tower_z) && (adjustment < 0)){
 				gcode->stream->printf("Overshoot Detected\n");
-				gcode->stream->printf("A-Tower(%1.3f)is less than Sides average %1.3f. Adjustment factor @ %1.3f\n",anti_tower / Z_STEPS_PER_MM, tower_z,adjustment);
+				gcode->stream->printf("A-Tower(%1.5f)is less than Sides average %1.5f. Adjustment factor @ %1.5f\n",anti_tower / Z_STEPS_PER_MM, tower_z,adjustment);
 				adjustment = -adjustment/4;
-				gcode->stream->printf("changing adjustment factor to %1.3f\n",adjustment);
+				gcode->stream->printf("changing adjustment factor to %1.5f\n",adjustment);
 			};
 			if((anti_tower/ Z_STEPS_PER_MM > tower_z) && (adjustment > 0)){
 				gcode->stream->printf("Overshoot Detected\n");
-				gcode->stream->printf("A-Tower(%1.3f)is greater than Sides average(%1.3f). Adjustment factor @ %1.3f\n",anti_tower / Z_STEPS_PER_MM, tower_z,adjustment);
+				gcode->stream->printf("A-Tower(%1.5f)is greater than Sides average(%1.5f). Adjustment factor @ %1.5f\n",anti_tower / Z_STEPS_PER_MM, tower_z,adjustment);
 				adjustment = -adjustment/4;
-				gcode->stream->printf("changing adjustment factor to %1.3f\n",adjustment);
+				gcode->stream->printf("changing adjustment factor to %1.5f\n",adjustment);
 			};
 			
 			//set next adjustment
@@ -800,41 +823,41 @@ bool ZProbe::fix_delta_tower_radius(Gcode *gcode,int blame_tower)
 	    	};    	
 	    } while(!radius_done);
 		THEKERNEL->robot->arm_solution->get_optional(options);
-		if(verbose|| verbose1) gcode->stream->printf("A%1.3f \t B%1.3f \t G%1.3f \t R%1.3f \t L%1.3f \t X%1.3f \t Y%1.3f \t Z%1.3f \n", options['A'],options['B'],options['C'],options['R'],options['L'],options['X'],options['Y'],options['Z']);
+		gcode->stream->printf("A%1.5f \t B%1.5f \t C%1.5f \t X%1.5f \t Y%1.5f \t Z%1.5f \t R%1.5f \t L%1.5f \n", options['A'],options['B'],options['C'],options['D'],options['E'],options['F'],options['R'],options['L']);
 		home();
     	if(!run_probe(s, true)) return false;
 		bedht= s/Z_STEPS_PER_MM - this->probe_height; // distance to move from home to 5mm above bed
-		if(verbose|| verbose1) gcode->stream->printf("TR: C \t 0 \t 0 \t %f Steps:%d\n", bedht,s);
+		gcode->stream->printf(" C \t 0 \t 0 \t %1.5f \n", bedht);
 		home();
 		coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true);
 		int dc;
 		if(!probe_delta_tower(dc, 0, 0)) return false;
-		if(verbose) gcode->stream->printf("TD: CT\t Z:%1.3f \t Steps:%d\n", dc / Z_STEPS_PER_MM, dc);
-        if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  A \t %1.3f %1.3f %1.3f Steps:%d\n",t1x,t1y,  dx / Z_STEPS_PER_MM, dx);
-        if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -G \t %1.3f %1.3f %1.3f Steps:%d\n",t6x,t6y, daz / Z_STEPS_PER_MM, daz);
-        if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  B \t %1.3f %1.3f %1.3f Steps:%d\n",t2x,t2y, dy / Z_STEPS_PER_MM, dy);
-        if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -A \t %1.3f %1.3f %1.3f Steps:%d\n",t4x,t4y, dax / Z_STEPS_PER_MM, dax);
-        if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  G \t %1.3f %1.3f %1.3f Steps:%d\n",t3x,t3y, dz / Z_STEPS_PER_MM, dz);
-        if(!probe_delta_tower(day,t5x,t5y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -B \t %1.3f %1.3f %1.3f Steps:%d\n",t5x,t5y, day / Z_STEPS_PER_MM, day);
-	
-        if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  A/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t1x/2,t1y/2,  dx / Z_STEPS_PER_MM, dx);
-        if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -G/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t6x/2,t6y/2, daz / Z_STEPS_PER_MM, daz);
-        if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  B/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t2x/2,t2y/2, dy / Z_STEPS_PER_MM, dy);
-        if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -A/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t4x/2,t4y/2, dax / Z_STEPS_PER_MM, dax);
-        if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR:  G/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t3x/2,t3y/2, dz / Z_STEPS_PER_MM, dz);
-        if(!probe_delta_tower(day,t5x,t5y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TR: -B/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t5x/2,t5y/2, day / Z_STEPS_PER_MM, day);
+		gcode->stream->printf("CT\t %1.5f \n", dc / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(dx, t1x, t1y)) return false;
+		gcode->stream->printf(" A\t %1.5f \t %1.5f \t %1.5f\n",t1x,t1y,dx / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(daz,t6x,t6y)) return false;
+		gcode->stream->printf("-G\t %1.5f \t %1.5f \t %1.5f\n",t6x,t6y, daz / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(dy, t2x, t2y)) return false;
+		gcode->stream->printf(" B\t %1.5f \t %1.5f \t %1.5f\n",t2x,t2y, dy / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(dax,t4x,t4y)) return false;
+		gcode->stream->printf("-A\t %1.5f \t %1.5f \t %1.5f\n",t4x,t4y, dax / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(dz, t3x, t3y)) return false;
+		gcode->stream->printf(" G\t %1.5f \t %1.5f \t %1.5f\n",t3x,t3y, dz / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(day,t5x,t5y)) return false;
+		gcode->stream->printf("-B\t %1.5f \t %1.5f \t %1.5f\n",t5x,t5y, day / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(dx, t1x/2, t1y/2)) return false;
+		gcode->stream->printf(" A/2\t %1.5f \t %1.5f \t %1.5f\n",t1x/2,t1y/2,  dx / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(daz,t6x/2,t6y/2)) return false;
+		gcode->stream->printf("-G/2\t %1.5f \t %1.5f \t %1.5f\n",t6x/2,t6y/2, daz / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(dy, t2x/2, t2y/2)) return false;
+		gcode->stream->printf(" B/2\t %1.5f \t %1.5f \t %1.5f\n",t2x/2,t2y/2, dy / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(dax,t4x/2,t4y/2)) return false;
+		gcode->stream->printf("-A/2\t %1.5f \t %1.5f \t %1.5f\n",t4x/2,t4y/2, dax / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(dz, t3x/2, t3y/2)) return false;
+		gcode->stream->printf(" G/2\t %1.5f \t %1.5f \t %1.5f\n",t3x/2,t3y/2, dz / Z_STEPS_PER_MM);
+		if(!probe_delta_tower(day,t5x/2,t5y/2)) return false;
+		gcode->stream->printf("-B/2\t %1.5f \t %1.5f \t %1.5f\n",t5x/2,t5y/2, day / Z_STEPS_PER_MM);
+        if(!probe_delta_tower(dx, t1x/2, t1y/2)) return false;
 		return true;
 };
 
@@ -892,7 +915,7 @@ bool ZProbe::fix_delta_tower_position(Gcode *gcode, int blame_tower)
 					options['X']+=adjustment;
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
-					gcode->stream->printf("Alpha Tower's angle adjusted to %1.3f by %1.3f\n",options['X'],adjustment);				
+					gcode->stream->printf("Alpha Tower's angle adjusted to %1.5f by %1.5f\n",options['X'],adjustment);				
 					home();
 					//calibrate_delta_endstops(gcode,false);
 					//calibrate_delta_radius(gcode);
@@ -902,16 +925,16 @@ bool ZProbe::fix_delta_tower_position(Gcode *gcode, int blame_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed						
 					if(!probe_delta_tower(anti_tower_right,t6x,t6y)) return false;
-					gcode->stream->printf("Right Midpoint:\t %1.3f \t Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+					gcode->stream->printf("Right Midpoint:\t %1.5f \t Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 	    			if(!probe_delta_tower(anti_tower_left ,t5x,t5y)) return false;
-					gcode->stream->printf("Left Midpoint:\t %1.3f \t Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+					gcode->stream->printf("Left Midpoint:\t %1.5f \t Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 						
 					break;
 	    		case 2 :
 					options['Y']+=adjustment;
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options); 
-					gcode->stream->printf("Beta Tower's angle adjusted to %1.3f by %1.3f\n",options['Y'],adjustment);
+					gcode->stream->printf("Beta Tower's angle adjusted to %1.5f by %1.5f\n",options['Y'],adjustment);
 					home();
 					//calibrate_delta_endstops(gcode,false);
 					//calibrate_delta_radius(gcode);
@@ -921,16 +944,16 @@ bool ZProbe::fix_delta_tower_position(Gcode *gcode, int blame_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed						
 					if(!probe_delta_tower(anti_tower_right,t4x,t4y)) return false;
-					gcode->stream->printf("Right Midpoint:\t %1.3f \t Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+					gcode->stream->printf("Right Midpoint:\t %1.5f \t Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 	    			if(!probe_delta_tower(anti_tower_left ,t6x,t6y)) return false;
-					gcode->stream->printf("Left Midpoint:\t %1.3f \t Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+					gcode->stream->printf("Left Midpoint:\t %1.5f \t Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 					
 					break;
 	    		case 3 :
 					options['Z']+=adjustment;
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
-					gcode->stream->printf("Gamma Tower's angle adjusted to %1.3f by %1.3f\n",options['Z'],adjustment);
+					gcode->stream->printf("Gamma Tower's angle adjusted to %1.5f by %1.5f\n",options['Z'],adjustment);
 					home();//home to reset arm solution
 					//calibrate_delta_endstops(gcode,false);
 					//calibrate_delta_radius(gcode);
@@ -940,9 +963,9 @@ bool ZProbe::fix_delta_tower_position(Gcode *gcode, int blame_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed						
 					if(!probe_delta_tower(anti_tower_right,t5x,t5y)) return false;
-					gcode->stream->printf("Right Midpoint:\t %1.3f \t Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+					gcode->stream->printf("Right Midpoint:\t %1.5f \t Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 					if(!probe_delta_tower(anti_tower_left ,t4x,t4y)) return false;
-					gcode->stream->printf("Left Midpoint:\t %1.3f \t Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+					gcode->stream->printf("Left Midpoint:\t %1.5f \t Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 					
 					break;
 	    	};//end of switch statement
@@ -953,9 +976,9 @@ bool ZProbe::fix_delta_tower_position(Gcode *gcode, int blame_tower)
 			prev_diff = diff;
 			diff = anti_tower_left - anti_tower_right;	
 			diff = diff/Z_STEPS_PER_MM;
-			gcode->stream->printf("Difference:%1.3f \n",diff);			
+			gcode->stream->printf("Difference:%1.5f \n",diff);			
 			if(abs(diff) > abs(prev_diff) ){
-				gcode->stream->printf("Odd...Things got worse, it was previously off by %1.3f\n",prev_diff);
+				gcode->stream->printf("Odd...Things got worse, it was previously off by %1.5f\n",prev_diff);
 			}else{
 			gcode->stream->printf("Look at that, things are getting better!\n");
 			};
@@ -971,24 +994,24 @@ bool ZProbe::fix_delta_tower_position(Gcode *gcode, int blame_tower)
 	    	//detect and correct low overshoot
 	    	if((adjustment > 0) && (previous_adjustment <0)){
 				gcode->stream->printf("Overshoot Detected\n");
-				gcode->stream->printf("Adjustment was %1.3f and now is %1.3f\n",previous_adjustment,adjustment);
-				gcode->stream->printf("A-Tower Left(%1.3f)is greater than Anti_tower Right(%1.3f).Moving right (pos) @ adjustment factor(%1.3f)\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_right / Z_STEPS_PER_MM,adjustment);
+				gcode->stream->printf("Adjustment was %1.5f and now is %1.5f\n",previous_adjustment,adjustment);
+				gcode->stream->printf("A-Tower Left(%1.5f)is greater than Anti_tower Right(%1.5f).Moving right (pos) @ adjustment factor(%1.5f)\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_right / Z_STEPS_PER_MM,adjustment);
 				adjustment = adjustment/4;
 				step = step /4;
-				gcode->stream->printf("changing adjustment factor to %1.3f\n",adjustment);
+				gcode->stream->printf("changing adjustment factor to %1.5f\n",adjustment);
 	    	};
 			//detect and correct high overshoot
 			if((adjustment < 0) && (previous_adjustment >0)){
 				gcode->stream->printf("Overshoot Detected\n");
-				gcode->stream->printf("Adjustment was %1.3f and now is %1.3f\n",previous_adjustment,adjustment);
-				gcode->stream->printf("A-Tower Left(%1.3f)is less than A-Tower Right(%1.3f). Moving left (neg) @ adjustment factor(%1.3f)\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_right / Z_STEPS_PER_MM,adjustment);
+				gcode->stream->printf("Adjustment was %1.5f and now is %1.5f\n",previous_adjustment,adjustment);
+				gcode->stream->printf("A-Tower Left(%1.5f)is less than A-Tower Right(%1.5f). Moving left (neg) @ adjustment factor(%1.5f)\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_right / Z_STEPS_PER_MM,adjustment);
 				adjustment = adjustment/4;
 				step = step /4;
-				gcode->stream->printf("changing adjustment factor to %1.3f\n",adjustment);
+				gcode->stream->printf("changing adjustment factor to %1.5f\n",adjustment);
 			};
 	    } while(adjustment !=0);	    
     	THEKERNEL->robot->arm_solution->get_optional(options);
-		if(verbose|| verbose1) gcode->stream->printf("A%1.3f \t B%1.3f \t G%1.3f \t R%1.3f \t L%1.3f \t X%1.3f \t Y%1.3f \t Z%1.3f \n", options['A'],options['B'],options['C'],options['R'],options['L'],options['X'],options['Y'],options['Z']);
+		if(verbose|| verbose1) gcode->stream->printf("A%1.5f \t B%1.5f \t G%1.5f \t R%1.5f \t L%1.5f \t X%1.5f \t Y%1.5f \t Z%1.5f \n", options['A'],options['B'],options['C'],options['R'],options['L'],options['X'],options['Y'],options['Z']);
 		home();
     	if(!run_probe(s, true)) return false;
 		bedht= s/Z_STEPS_PER_MM - this->probe_height; // distance to move from home to 5mm above bed
@@ -997,32 +1020,32 @@ bool ZProbe::fix_delta_tower_position(Gcode *gcode, int blame_tower)
 		coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true);
 		int dc;
 		if(!probe_delta_tower(dc, 0, 0)) return false;
-		if(verbose) gcode->stream->printf("TD: CT\t Z:%1.3f \t Steps:%d\n", dc / Z_STEPS_PER_MM, dc);
+		if(verbose) gcode->stream->printf("TD: CT\t Z:%1.5f \t Steps:%d\n", dc / Z_STEPS_PER_MM, dc);
         if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD:  A \t %1.3f %1.3f %1.3f Steps:%d\n",t1x,t1y,  dx / Z_STEPS_PER_MM, dx);
+        if(verbose || verbose1) gcode->stream->printf("TD:  A \t %1.5f %1.5f %1.5f Steps:%d\n",t1x,t1y,  dx / Z_STEPS_PER_MM, dx);
         if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD: -G \t %1.3f %1.3f %1.3f Steps:%d\n",t6x,t6y, daz / Z_STEPS_PER_MM, daz);
+        if(verbose || verbose1) gcode->stream->printf("TD: -G \t %1.5f %1.5f %1.5f Steps:%d\n",t6x,t6y, daz / Z_STEPS_PER_MM, daz);
         if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD:  B \t %1.3f %1.3f %1.3f Steps:%d\n",t2x,t2y, dy / Z_STEPS_PER_MM, dy);
+        if(verbose || verbose1) gcode->stream->printf("TD:  B \t %1.5f %1.5f %1.5f Steps:%d\n",t2x,t2y, dy / Z_STEPS_PER_MM, dy);
         if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD: -A \t %1.3f %1.3f %1.3f Steps:%d\n",t4x,t4y, dax / Z_STEPS_PER_MM, dax);
+        if(verbose || verbose1) gcode->stream->printf("TD: -A \t %1.5f %1.5f %1.5f Steps:%d\n",t4x,t4y, dax / Z_STEPS_PER_MM, dax);
         if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD:  G \t %1.3f %1.3f %1.3f Steps:%d\n",t3x,t3y, dz / Z_STEPS_PER_MM, dz);
+        if(verbose || verbose1) gcode->stream->printf("TD:  G \t %1.5f %1.5f %1.5f Steps:%d\n",t3x,t3y, dz / Z_STEPS_PER_MM, dz);
         if(!probe_delta_tower(day,t5x,t5y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD: -B \t %1.3f %1.3f %1.3f Steps:%d\n",t5x,t5y, day / Z_STEPS_PER_MM, day);
+        if(verbose || verbose1) gcode->stream->printf("TD: -B \t %1.5f %1.5f %1.5f Steps:%d\n",t5x,t5y, day / Z_STEPS_PER_MM, day);
 	
         if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD:  A/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t1x/2,t1y/2,  dx / Z_STEPS_PER_MM, dx);
+        if(verbose || verbose1) gcode->stream->printf("TD:  A/2 \t %1.5f %1.5f %1.5f Steps:%d\n",t1x/2,t1y/2,  dx / Z_STEPS_PER_MM, dx);
         if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD: -G/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t6x/2,t6y/2, daz / Z_STEPS_PER_MM, daz);
+        if(verbose || verbose1) gcode->stream->printf("TD: -G/2 \t %1.5f %1.5f %1.5f Steps:%d\n",t6x/2,t6y/2, daz / Z_STEPS_PER_MM, daz);
         if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD:  B/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t2x/2,t2y/2, dy / Z_STEPS_PER_MM, dy);
+        if(verbose || verbose1) gcode->stream->printf("TD:  B/2 \t %1.5f %1.5f %1.5f Steps:%d\n",t2x/2,t2y/2, dy / Z_STEPS_PER_MM, dy);
         if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD: -A/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t4x/2,t4y/2, dax / Z_STEPS_PER_MM, dax);
+        if(verbose || verbose1) gcode->stream->printf("TD: -A/2 \t %1.5f %1.5f %1.5f Steps:%d\n",t4x/2,t4y/2, dax / Z_STEPS_PER_MM, dax);
         if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD:  G/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t3x/2,t3y/2, dz / Z_STEPS_PER_MM, dz);
+        if(verbose || verbose1) gcode->stream->printf("TD:  G/2 \t %1.5f %1.5f %1.5f Steps:%d\n",t3x/2,t3y/2, dz / Z_STEPS_PER_MM, dz);
         if(!probe_delta_tower(day,t5x,t5y)) return false;
-        if(verbose || verbose1) gcode->stream->printf("TD: -B/2 \t %1.3f %1.3f %1.3f Steps:%d\n",t5x/2,t5y/2, day / Z_STEPS_PER_MM, day);		
+        if(verbose || verbose1) gcode->stream->printf("TD: -B/2 \t %1.5f %1.5f %1.5f Steps:%d\n",t5x/2,t5y/2, day / Z_STEPS_PER_MM, day);		
 return true;
 };
 
@@ -1069,17 +1092,17 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
         // probe towers and anti-tower positions using coordinated moves
 
         if(!probe_delta_tower(dx, t1x, t1y)) return false;
-        gcode->stream->printf("Pass-%d Alpha:%1.3f Steps:%d\n", i, dx / Z_STEPS_PER_MM, dx);
+        gcode->stream->printf("Pass-%d Alpha:%1.5f Steps:%d\n", i, dx / Z_STEPS_PER_MM, dx);
         if(!probe_delta_tower(daz,t6x,t6y)) return false;
-        gcode->stream->printf("Pass-%d AntiGamma:%1.3f Steps:%d\n", i, daz / Z_STEPS_PER_MM, daz);
+        gcode->stream->printf("Pass-%d AntiGamma:%1.5f Steps:%d\n", i, daz / Z_STEPS_PER_MM, daz);
         if(!probe_delta_tower(dy, t2x, t2y)) return false;
-        gcode->stream->printf("Pass-%d Beta:%1.3f Steps:%d\n", i, dy / Z_STEPS_PER_MM, dy);
+        gcode->stream->printf("Pass-%d Beta:%1.5f Steps:%d\n", i, dy / Z_STEPS_PER_MM, dy);
         if(!probe_delta_tower(dax,t4x,t4y)) return false;
-        gcode->stream->printf("Pass-%d AntiAlpha:%1.3f Steps:%d\n", i, dax / Z_STEPS_PER_MM, dax);
+        gcode->stream->printf("Pass-%d AntiAlpha:%1.5f Steps:%d\n", i, dax / Z_STEPS_PER_MM, dax);
         if(!probe_delta_tower(dz, t3x, t3y)) return false;
-        gcode->stream->printf("Pass-%d Gamma:%1.3f Steps:%d\n", i, dz / Z_STEPS_PER_MM, dz);
+        gcode->stream->printf("Pass-%d Gamma:%1.5f Steps:%d\n", i, dz / Z_STEPS_PER_MM, dz);
         if(!probe_delta_tower(day,t5x,t5y)) return false;
-        gcode->stream->printf("Pass-%d AntiBeta:%1.3f Steps:%d\n", i, day / Z_STEPS_PER_MM, day);
+        gcode->stream->printf("Pass-%d AntiBeta:%1.5f Steps:%d\n", i, day / Z_STEPS_PER_MM, day);
             
         //get difference of tower and anti-tower positions
         alpha= (dx - dax);
@@ -1167,7 +1190,7 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
 					tower_radius = options['A'];	    			 
-					gcode->stream->printf("Alpha Radius Offset adjusted to %1.3f by %1.3f\n",tower_radius,adjustment);					
+					gcode->stream->printf("Alpha Radius Offset adjusted to %1.5f by %1.5f\n",tower_radius,adjustment);					
 					home();
 					calibrate_delta_endstops(gcode,false);
 					calibrate_delta_radius(gcode);
@@ -1177,18 +1200,18 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed
 					if(!probe_delta_tower(anti_tower,t4x,t4y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower position:		 %1.3f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
+						 if(verbose) gcode->stream->printf("A-Tower position:		 %1.5f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
 					if(!probe_delta_tower(anti_tower_right,t5x,t5y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower Right midpoint:%1.3f Steps:%d\n",anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+						 if(verbose) gcode->stream->printf("A-Tower Right midpoint:%1.5f Steps:%d\n",anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 					if(!probe_delta_tower(anti_tower_left,t6x,t6y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower Left midpoint:%1.3f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+						 if(verbose) gcode->stream->printf("A-Tower Left midpoint:%1.5f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 					break;
 	    		case 2 : 
 					options['B']+=adjustment;
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
 					tower_radius = options['B'];
-					gcode->stream->printf("Beta Radius Offset adjusted to %1.3f by %1.3f\n",tower_radius,adjustment);					
+					gcode->stream->printf("Beta Radius Offset adjusted to %1.5f by %1.5f\n",tower_radius,adjustment);					
 					home();
 					// find bed, then move to a point 5mm above it    
 					if(!run_probe(s, true)) return false;    
@@ -1196,18 +1219,18 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed					
 					if(!probe_delta_tower(anti_tower,t5x,t5y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower position:	 	 %1.3f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
+						 if(verbose) gcode->stream->printf("A-Tower position:	 	 %1.5f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
 					if(!probe_delta_tower(anti_tower_right,t6x,t6y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower Right midpoint:%1.3f Steps:%d\n",anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+						 if(verbose) gcode->stream->printf("A-Tower Right midpoint:%1.5f Steps:%d\n",anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 					if(!probe_delta_tower(anti_tower_left,t4x,t4y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower Left midpoint:%1.3f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+						 if(verbose) gcode->stream->printf("A-Tower Left midpoint:%1.5f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 					break;
 	    		case 3 :
 					options['C']+=adjustment;									
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
 					tower_radius = options['C'];
-					gcode->stream->printf("Gamma Radius Offset adjusted to %1.3f by %1.3f\n",tower_radius,adjustment);
+					gcode->stream->printf("Gamma Radius Offset adjusted to %1.5f by %1.5f\n",tower_radius,adjustment);
 					home();
 					// find bed, then move to a point 5mm above it    
 					if(!run_probe(s, true)) return false;    
@@ -1215,11 +1238,11 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed
 					if(!probe_delta_tower(anti_tower,t6x,t6y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower position:		 %1.3f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
+						 if(verbose) gcode->stream->printf("A-Tower position:		 %1.5f Steps:%d\n",anti_tower / Z_STEPS_PER_MM, anti_tower);
 					if(!probe_delta_tower(anti_tower_right,t4x,t4y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower Right midpoint:%1.3f Steps:%d\n",anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+						 if(verbose) gcode->stream->printf("A-Tower Right midpoint:%1.5f Steps:%d\n",anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 					if(!probe_delta_tower(anti_tower_left,t5x,t5y)) return false;
-						 if(verbose) gcode->stream->printf("A-Tower Left midpoint:%1.3f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+						 if(verbose) gcode->stream->printf("A-Tower Left midpoint:%1.5f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 					break;
 	    	};
 	    	//Average the unblamed anti-tower positions
@@ -1228,25 +1251,25 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 			anti_t_average= anti_t_average/Z_STEPS_PER_MM;
 			prev_diff = diff;
 			diff = ((anti_tower/Z_STEPS_PER_MM) - anti_t_average);			
-				 if(verbose) gcode->stream->printf("Off by %1.3f from Left & Right Avg (%1.3f)\n",diff,anti_t_average);
+				 if(verbose) gcode->stream->printf("Off by %1.5f from Left & Right Avg (%1.5f)\n",diff,anti_t_average);
 			if(verbose){if(abs(diff) > abs(prev_diff) ){
-				gcode->stream->printf("Odd...Things got worse, it was previously off by %1.3f\n",prev_diff);
+				gcode->stream->printf("Odd...Things got worse, it was previously off by %1.5f\n",prev_diff);
 			}else{
-			gcode->stream->printf("Look at that, things are getting better. It was previously off by %1.3f\n",prev_diff);
+			gcode->stream->printf("Look at that, things are getting better. It was previously off by %1.5f\n",prev_diff);
 			};};
 	    	//Overshoot detection
 	    	//half adjustment amount and reverse direction of change
 	    	if((anti_tower/ Z_STEPS_PER_MM < anti_t_average) && (adjustment < 0)){
 					 if(verbose) gcode->stream->printf("Overshoot Detected\n");
-					 if(verbose) gcode->stream->printf("A-Tower(%1.3f)is less than Sides average %1.3f. Adjustment factor @ %1.3f\n",anti_tower / Z_STEPS_PER_MM, anti_t_average,adjustment);
+					 if(verbose) gcode->stream->printf("A-Tower(%1.5f)is less than Sides average %1.5f. Adjustment factor @ %1.5f\n",anti_tower / Z_STEPS_PER_MM, anti_t_average,adjustment);
 				adjustment = -adjustment/2;
-					 if(verbose) gcode->stream->printf("changing adjustment factor to %1.3f\n",adjustment);
+					 if(verbose) gcode->stream->printf("changing adjustment factor to %1.5f\n",adjustment);
 			};
 			if((anti_tower/ Z_STEPS_PER_MM > anti_t_average) && (adjustment > 0)){
 					 if(verbose) gcode->stream->printf("Overshoot Detected\n");
-					 if(verbose) gcode->stream->printf("A-Tower(%1.3f)is greater than Sides average(%1.3f). Adjustment factor @ %1.3f\n",anti_tower / Z_STEPS_PER_MM, anti_t_average,adjustment);
+					 if(verbose) gcode->stream->printf("A-Tower(%1.5f)is greater than Sides average(%1.5f). Adjustment factor @ %1.5f\n",anti_tower / Z_STEPS_PER_MM, anti_t_average,adjustment);
 				adjustment = -adjustment/2;
-					 if(verbose) gcode->stream->printf("changing adjustment factor to %1.3f\n",adjustment);
+					 if(verbose) gcode->stream->printf("changing adjustment factor to %1.5f\n",adjustment);
 			};
 			
 			//set next adjustment
@@ -1284,7 +1307,7 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 					options['X']+=adjustment;
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
-					gcode->stream->printf("Alpha Tower's angle adjusted to %1.3f by %1.3f\n",options['X'],adjustment);				
+					gcode->stream->printf("Alpha Tower's angle adjusted to %1.5f by %1.5f\n",options['X'],adjustment);				
 					home();
 					calibrate_delta_endstops(gcode,false);
 					calibrate_delta_radius(gcode);
@@ -1294,16 +1317,16 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed						
 					if(!probe_delta_tower(anti_tower_right,t6x,t6y)) return false;
-					if(verbose) gcode->stream->printf("Right Midpoint:%1.3f Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+					if(verbose) gcode->stream->printf("Right Midpoint:%1.5f Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 	    			if(!probe_delta_tower(anti_tower_left ,t5x,t5y)) return false;
-					if(verbose) gcode->stream->printf("Left Midpoint:%1.3f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+					if(verbose) gcode->stream->printf("Left Midpoint:%1.5f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 						
 					break;
 	    		case 2 :
 					options['Y']+=adjustment;
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options); 
-					gcode->stream->printf("Beta Tower's angle adjusted to %1.3f by %1.3f\n",options['Y'],adjustment);
+					gcode->stream->printf("Beta Tower's angle adjusted to %1.5f by %1.5f\n",options['Y'],adjustment);
 					home();
 					calibrate_delta_endstops(gcode,false);
 					calibrate_delta_radius(gcode);
@@ -1313,16 +1336,16 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed						
 					if(!probe_delta_tower(anti_tower_right,t4x,t4y)) return false;
-					if(verbose) gcode->stream->printf("Right Midpoint:%1.3f Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+					if(verbose) gcode->stream->printf("Right Midpoint:%1.5f Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 	    			if(!probe_delta_tower(anti_tower_left ,t6x,t6y)) return false;
-					if(verbose) gcode->stream->printf("Left Midpoint:%1.3f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+					if(verbose) gcode->stream->printf("Left Midpoint:%1.5f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 					
 					break;
 	    		case 3 :
 					options['Z']+=adjustment;
 					THEKERNEL->robot->arm_solution->set_optional(options);
 					THEKERNEL->robot->arm_solution->get_optional(options);
-					gcode->stream->printf("Gamma Tower's angle adjusted to %1.3f by %1.3f\n",options['Z'],adjustment);
+					gcode->stream->printf("Gamma Tower's angle adjusted to %1.5f by %1.5f\n",options['Z'],adjustment);
 					home();//home to reset arm solution
 					calibrate_delta_endstops(gcode,false);
 					calibrate_delta_radius(gcode);
@@ -1332,9 +1355,9 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 					home();
 					coordinated_move(NAN, NAN, -bedht, this->fast_feedrate, true); // do a relative move from home to the point above the bed						
 					if(!probe_delta_tower(anti_tower_right,t5x,t5y)) return false;
-					if(verbose) gcode->stream->printf("Right Midpoint:%1.3f Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
+					if(verbose) gcode->stream->printf("Right Midpoint:%1.5f Steps:%d\n", anti_tower_right / Z_STEPS_PER_MM, anti_tower_right);
 					if(!probe_delta_tower(anti_tower_left ,t4x,t4y)) return false;
-					if(verbose) gcode->stream->printf("Left Midpoint:%1.3f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
+					if(verbose) gcode->stream->printf("Left Midpoint:%1.5f Steps:%d\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_left);
 					
 					break;
 	    	};//end of switch statement
@@ -1345,9 +1368,9 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 			prev_diff = diff;
 			diff = anti_tower_left - anti_tower_right;	
 			diff = diff/Z_STEPS_PER_MM;
-			gcode->stream->printf("Difference:%1.3f \n",diff);			
+			gcode->stream->printf("Difference:%1.5f \n",diff);			
 			if(verbose){if(abs(diff) > abs(prev_diff) ){
-				gcode->stream->printf("Odd...Things got worse, it was previously off by %1.3f\n",prev_diff);
+				gcode->stream->printf("Odd...Things got worse, it was previously off by %1.5f\n",prev_diff);
 			}else{
 			gcode->stream->printf("Look at that, things are getting better!\n");
 			};};
@@ -1363,20 +1386,20 @@ bool ZProbe::calibrate_delta_tower_position(Gcode *gcode,int suggested_tower)
 	    	//detect and correct low overshoot
 	    	if((adjustment > 0) && (previous_adjustment <0)){
 				if(verbose) gcode->stream->printf("Overshoot Detected\n");
-				if(verbose) gcode->stream->printf("Adjustment was %1.3f and now is %1.3f\n",previous_adjustment,adjustment);
-				if(verbose) gcode->stream->printf("A-Tower Left(%1.3f)is greater than Anti_tower Right(%1.3f).Moving right (pos) @ adjustment factor(%1.3f)\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_right / Z_STEPS_PER_MM,adjustment);
+				if(verbose) gcode->stream->printf("Adjustment was %1.5f and now is %1.5f\n",previous_adjustment,adjustment);
+				if(verbose) gcode->stream->printf("A-Tower Left(%1.5f)is greater than Anti_tower Right(%1.5f).Moving right (pos) @ adjustment factor(%1.5f)\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_right / Z_STEPS_PER_MM,adjustment);
 				adjustment = adjustment/2;
 				step = step /2;
-					 if(verbose) gcode->stream->printf("changing adjustment factor to %1.3f\n",adjustment);
+					 if(verbose) gcode->stream->printf("changing adjustment factor to %1.5f\n",adjustment);
 	    	};
 			//detect and correct high overshoot
 			if((adjustment < 0) && (previous_adjustment >0)){
 				if(verbose) gcode->stream->printf("Overshoot Detected\n");
-				if(verbose) gcode->stream->printf("Adjustment was %1.3f and now is %1.3f\n",previous_adjustment,adjustment);
-				if(verbose) gcode->stream->printf("A-Tower Left(%1.3f)is less than A-Tower Right(%1.3f). Moving left (neg) @ adjustment factor(%1.3f)\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_right / Z_STEPS_PER_MM,adjustment);
+				if(verbose) gcode->stream->printf("Adjustment was %1.5f and now is %1.5f\n",previous_adjustment,adjustment);
+				if(verbose) gcode->stream->printf("A-Tower Left(%1.5f)is less than A-Tower Right(%1.5f). Moving left (neg) @ adjustment factor(%1.5f)\n",anti_tower_left / Z_STEPS_PER_MM, anti_tower_right / Z_STEPS_PER_MM,adjustment);
 				adjustment = adjustment/2;
 				step = step /2;
-					 if(verbose) gcode->stream->printf("changing adjustment factor to %1.3f\n",adjustment);
+					 if(verbose) gcode->stream->printf("changing adjustment factor to %1.5f\n",adjustment);
 			};
 	    } while(adjustment !=0);	    
     } return true;//end of calibration loop              	
@@ -1419,22 +1442,22 @@ bool ZProbe::assess_consistancy(Gcode *gcode)
         // probe towers and anti-tower positions using coordinated moves
         if(!probe_delta_tower(temp, t1x, t1y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d Alpha:%1.3f Steps:%d\n", i, temp / Z_STEPS_PER_MM, dx);
+        //gcode->stream->printf("Sample-%d Alpha:%1.5f Steps:%d\n", i, temp / Z_STEPS_PER_MM, dx);
         if(!probe_delta_tower(temp,t6x,t6y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d AntiGamma:%1.3f Steps:%d\n", i, daz / Z_STEPS_PER_MM, daz);
+        //gcode->stream->printf("Sample-%d AntiGamma:%1.5f Steps:%d\n", i, daz / Z_STEPS_PER_MM, daz);
         if(!probe_delta_tower(temp, t2x, t2y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d Beta:%1.3f Steps:%d\n", i, dy / Z_STEPS_PER_MM, dy);
+        //gcode->stream->printf("Sample-%d Beta:%1.5f Steps:%d\n", i, dy / Z_STEPS_PER_MM, dy);
         if(!probe_delta_tower(temp,t4x,t4y)) return false;
 		test_point.push_back(temp);
-		//gcode->stream->printf("Sample-%d AntiAlpha:%1.3f Steps:%d\n", i, dax / Z_STEPS_PER_MM, dax);
+		//gcode->stream->printf("Sample-%d AntiAlpha:%1.5f Steps:%d\n", i, dax / Z_STEPS_PER_MM, dax);
         if(!probe_delta_tower(temp, t3x, t3y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d Gamma:%1.3f Steps:%d\n", i, dz / Z_STEPS_PER_MM, dz);
+        //gcode->stream->printf("Sample-%d Gamma:%1.5f Steps:%d\n", i, dz / Z_STEPS_PER_MM, dz);
         if(!probe_delta_tower(temp,t5x,t5y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d AntiBeta:%1.3f Steps:%d\n", i, day / Z_STEPS_PER_MM, day);
+        //gcode->stream->printf("Sample-%d AntiBeta:%1.5f Steps:%d\n", i, day / Z_STEPS_PER_MM, day);
 		};
 		
 		//get the mean
@@ -1472,7 +1495,7 @@ bool ZProbe::assess_consistancy(Gcode *gcode)
 		};
 		float variance = (sum2 - (pow(sum3,2)/n))/(n-1);
 		float deviation = sqrt(variance);
-		gcode->stream->printf("Bed-height:%1.3f Mean: %1.3f Variance: %1.3f STD Deviation:%1.3f Sample Size:%d",bedht,mean/Z_STEPS_PER_MM ,variance/Z_STEPS_PER_MM ,deviation/Z_STEPS_PER_MM ,n);		
+		gcode->stream->printf("Bed-height:%1.5f Mean: %1.5f Variance: %1.5f STD Deviation:%1.5f Sample Size:%d",bedht,mean/Z_STEPS_PER_MM ,variance/Z_STEPS_PER_MM ,deviation/Z_STEPS_PER_MM ,n);		
 			
 */	//alternate version
 	for (int i = 0; i < sample_size; ++i){ 
@@ -1487,22 +1510,22 @@ bool ZProbe::assess_consistancy(Gcode *gcode)
         // probe towers and anti-tower positions using coordinated moves
         if(!probe_delta_tower(temp, t1x, t1y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d Alpha:%1.3f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
+        //gcode->stream->printf("Sample-%d Alpha:%1.5f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
         if(!probe_delta_tower(temp,t6x,t6y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d AntiGamma:%1.3f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
+        //gcode->stream->printf("Sample-%d AntiGamma:%1.5f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
         if(!probe_delta_tower(temp, t2x, t2y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d Beta:%1.3f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
+        //gcode->stream->printf("Sample-%d Beta:%1.5f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
         if(!probe_delta_tower(temp,t4x,t4y)) return false;
 		test_point.push_back(temp);
-		//gcode->stream->printf("Sample-%d AntiAlpha:%1.3f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
+		//gcode->stream->printf("Sample-%d AntiAlpha:%1.5f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
         if(!probe_delta_tower(temp, t3x, t3y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d Gamma:%1.3f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
+        //gcode->stream->printf("Sample-%d Gamma:%1.5f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
         if(!probe_delta_tower(temp,t5x,t5y)) return false;
 		test_point.push_back(temp);
-        //gcode->stream->printf("Sample-%d AntiBeta:%1.3f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
+        //gcode->stream->printf("Sample-%d AntiBeta:%1.5f Steps:%d\n", i, temp / Z_STEPS_PER_MM, temp);
 		};
 		
 		//get the sum
@@ -1536,7 +1559,7 @@ bool ZProbe::assess_consistancy(Gcode *gcode)
 		for (int i =0; i < 6; i++)
 		{
 			mean[i]= (sum[i]/(n/6));
-			//gcode->stream->printf("Mean[%d]=%1.3f\n",i,mean[i]);
+			//gcode->stream->printf("Mean[%d]=%1.5f\n",i,mean[i]);
 		};
 				
 		for( int offset =0; offset < 6; offset++){
@@ -1552,7 +1575,7 @@ bool ZProbe::assess_consistancy(Gcode *gcode)
 		};
 		float variance = (sum2 - (pow(sum3,2)/n))/(n-1);
 		float deviation = sqrt(variance);
-		gcode->stream->printf("Test Point %d: Mean: %1.3f Variance: %1.3f STD Deviation:%1.3f\n",offset,mean[offset]/Z_STEPS_PER_MM ,variance/Z_STEPS_PER_MM ,deviation/Z_STEPS_PER_MM);
+		gcode->stream->printf("Test Point %d: Mean: %1.5f Variance: %1.5f STD Deviation:%1.5f\n",offset,mean[offset]/Z_STEPS_PER_MM ,variance/Z_STEPS_PER_MM ,deviation/Z_STEPS_PER_MM);
 		};
 		
 						
@@ -1709,15 +1732,15 @@ void ZProbe::coordinated_move(float x, float y, float z, float feedrate, bool re
     else strcpy(cmd, "G0 ");
 
     if(!isnan(x)) {
-        int n = snprintf(buf, sizeof(buf), " X%1.3f", x);
+        int n = snprintf(buf, sizeof(buf), " X%1.5f", x);
         strncat(cmd, buf, n);
     }
     if(!isnan(y)) {
-        int n = snprintf(buf, sizeof(buf), " Y%1.3f", y);
+        int n = snprintf(buf, sizeof(buf), " Y%1.5f", y);
         strncat(cmd, buf, n);
     }
     if(!isnan(z)) {
-        int n = snprintf(buf, sizeof(buf), " Z%1.3f", z);
+        int n = snprintf(buf, sizeof(buf), " Z%1.5f", z);
         strncat(cmd, buf, n);
     }
 

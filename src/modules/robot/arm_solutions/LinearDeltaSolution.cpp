@@ -18,10 +18,8 @@
 #define beta_angular_checksum       CHECKSUM("beta_angular_offset")
 #define gamma_angular_checksum      CHECKSUM("gamma_angular_offset")
 
-
 #define SQ(x) powf(x, 2)
 #define ROUND(x, y) (roundf(x * 1e ## y) / 1e ## y)
-
 #define PIOVER180 0.0174529251994329576923690768489F
 
 LinearDeltaSolution::LinearDeltaSolution(Config* config)
@@ -56,6 +54,7 @@ void LinearDeltaSolution::init() {
 
     DELTA_TOWER3_X = cosf(PIOVER180*delta_tower3_a) * (DELTA_RADIUS+delta_tower3_r); // back middle tower
     DELTA_TOWER3_Y = sinf(PIOVER180*delta_tower3_a) * (DELTA_RADIUS+delta_tower3_r);
+
 }
 
 void LinearDeltaSolution::cartesian_to_actuator( float cartesian_mm[], float actuator_mm[] )
@@ -138,19 +137,18 @@ bool LinearDeltaSolution::set_optional(const arm_options_t& options) {
     if(i !=options.end()){
         delta_tower3_r=i->second;
     }
-    i= options.find('X');
+    i= options.find('D');
     if(i !=options.end()){
         delta_tower1_a=i->second;
     }
-    i= options.find('Y');
+    i= options.find('E');
     if(i !=options.end()){
         delta_tower2_a=i->second;
     }
-    i= options.find('Z');
+    i= options.find('F');
     if(i !=options.end()){
         delta_tower3_a=i->second;
-    }
-    
+    }    
     init();
     return true;
 }
@@ -161,9 +159,8 @@ bool LinearDeltaSolution::get_optional(arm_options_t& options) {
     options['A']= this->delta_tower1_r;
     options['B']= this->delta_tower2_r;
     options['C']= this->delta_tower3_r;
-    options['X']= this->delta_tower1_a;
-    options['Y']= this->delta_tower2_a;
-    options['Z']= this->delta_tower3_a;
-    
+    options['D']= this->delta_tower1_a;
+    options['E']= this->delta_tower2_a;
+    options['F']= this->delta_tower3_a;    
     return true;
 };
